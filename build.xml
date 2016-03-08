@@ -1,0 +1,122 @@
+﻿<project basedir="." default="compile" name="interlok-kafka" xmlns:adapter="uri:adapter" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <property file="build.properties"/>
+  <property file="ivy.properties"/>
+
+  <tstamp>
+    <format property="today" pattern="yyyy-MM-dd" locale="en"/>
+  </tstamp>
+
+  <target name="init">
+
+    <property name="manifest.title" value="Interlok Kafka Connector"/>
+    <property name="manifest.vendor" value="Adaptris Ltd"/>
+    <property name="ivy.publish.revision" value="1.0-SNAPSHOT"/>  <!-- Version number of this artifact -->
+    <property name="adp-core-version" value="3.1.1-RELEASE"/>
+
+    <property name="src.dir" value="${basedir}/src"/>
+
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="resources.dir" value="${basedir}/resources"/>
+
+    <property name="example-xml.build.dir" value="${build.dir}/example-xml"/>
+    <property name="testclasses.build.dir" value="${build.dir}/testclasses"/>
+    <property name="classes.build.dir" value="${build.dir}/classes"/>
+    <property name="jar.version" value="${today}"/>
+
+    <property name="build.tmp.dir" value="${build.dir}/tmp"/>
+    <property name="jar.version"            value="${today}-${user.name}"/>
+    <property name="project.name"           value="adp-${ant.project.name}"/>
+
+    <property name="project.dist.dir" value="${build.dir}/dist"/>
+    <property name="project.jar.name" value = "${project.name}.jar"/>
+
+    <property name="javac.version" value="1.7"/>
+  </target>
+
+  <!-- clean -->
+  <target name="clean" depends="init" description="Remove build artifacts">
+    <delete dir="${build.dir}"/>
+  </target>
+
+
+  <target name="init-ivy">
+    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.repo" value="nexus-snapshots"/>
+    <property name="ivy.dir" value="${basedir}/lib"/>
+    <property name="ivy.jar.file" value="${ivy.dir}/ivy.jar"/>
+    <property name="ivy.download.baseurl" value="http://development.adaptris.net/nexus/content/groups/public/org/apache/ivy/ivy"/>
+    <property name="ivy.download.url" value="${ivy.download.baseurl}/${ivy.install.version}/ivy-${ivy.install.version}.jar"/>
+    <property name="ivy.xml.file" value="${basedir}/ivy.xml"/>
+
+  </target>
+
+  <target name="download-ivy" depends="init-ivy" unless="skip.ivy.download">
+    <mkdir dir="${ivy.dir}"/>
+    <echo message="Downloading ivy..." level="verbose"/>
+    <get src="${ivy.download.url}" dest="${ivy.jar.file}" usetimestamp="true"/>
+  </target>
+
+  <target name="install-ivy" depends="download-ivy">
+    <path id="ivy.lib.path">
+      <pathelement location="${ivy.jar.file}"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+  </target>
+
+  <target name="taskdef.init" depends="install-ivy">
+    <property name="ivy.logging" value="quiet"/>
+    <ivy:settings file="${basedir}/ivy-settings.xml" />
+    <ivy:resolve file="${ivy.xml.file}" refresh="true" showprogress="false" log="${ivy.logging}"/>
+    <ivy:cachepath pathid="classpath.ant-tools" conf="ant"/>
+    <ivy:cachepath pathid="main.classpath" conf="compile,runtime,test" type="jar,zip,bundle"/>
+    <property name="anttools.classpath" refid="classpath.ant-tools"/>
+    <property name="cc.classpath" refid="main.classpath"/>
+    <echo message="Ivy Resolved Classpath - ${cc.classpath}" level="verbose"/>
+    <echo message="Ivy Resolved Classpath for ant - ${anttools.classpath}" level="verbose"/>
+    <!-- antcontrib (if statements) -->
+    <typedef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath.ant-tools" />
+  </target>
+
+  <target name="prepare-ivy" depends="taskdef.init" description="Loads all the ivy definitions and settings"/>
+
+  <target name="prepare" depends="init, prepare-ivy">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${example-xml.build.dir}"/>
+    <mkdir dir="${classes.build.dir}"/>
+    <mkdir dir="${testclasses.build.dir}"/>
+    <mkdir dir="${build.tmp.dir}"/>
+    <mkdir dir="${project.dist.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compile">
+    <javac source="${javac.version}" target="${javac.version}" destdir="${classes.build.dir}" srcdir="${src.dir}" debug="on" debuglevel="source,lines">
+      <classpath refid="main.classpath"/>
+    </javac>
+  </target>
+
+  <target name="jar.resources" depends="prepare">
+    <!-- build the manifest file -->
+    <property name="manifest.jar.version" value="${jar.version}"/>
+    <manifest file="${build.dir}/Manifest.mf">
+      <attribute name="Manifest-Version" value="1.0"/>
+      <attribute name="Build-Version" value="${manifest.jar.version}"/>
+      <attribute name="Built-By" value="${user.name}"/>
+      <section name="com/adaptris/streaming-jdbc-query-consumer">
+        <attribute name="Specification-Title" value="${manifest.title}"/>
+        <attribute name="Specification-Version" value="${ivy.publish.revision}"/>
+        <attribute name="Specification-Vendor" value="${manifest.vendor}"/>
+        <attribute name="Implementation-Version" value="${ivy.publish.revision}"/>
+        <attribute name="Implementation-Title" value="${manifest.title}"/>
+        <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
+      </section>
+    </manifest>
+  </target>
+
+  <target name="jar" depends="compile, jar.resources" description="Build a jar file">
+    <jar jarfile="${project.dist.dir}/${project.jar.name}"  manifest="${build.dir}/Manifest.mf" >
+      <fileset dir="${classes.build.dir}"/>
+    </jar>
+  </target>
+
+</project>
