@@ -3,8 +3,8 @@ package com.adaptris.kafka;
 import static org.junit.Assert.fail;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -27,19 +27,19 @@ public class StandardKafkaProducerTest {
 
   private static Logger log = LoggerFactory.getLogger(StandardKafkaProducerTest.class);
 
-  private static transient KafkaServerWrapper wrapper;
+  private KafkaServerWrapper wrapper;
 
   @Rule
   public TestName testName = new TestName();
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     wrapper = new KafkaServerWrapper(2);
     wrapper.start();
   }
 
-  @AfterClass
-  public static void teardownClass() {
+  @After
+  public void tearDown() {
     wrapper.shutdown();
   }
 
