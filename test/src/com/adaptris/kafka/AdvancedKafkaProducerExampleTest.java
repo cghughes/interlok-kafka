@@ -12,11 +12,11 @@ import com.adaptris.kafka.ProducerConfigBuilder.Acks;
 import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
 import com.adaptris.util.KeyValuePair;
 
-public class AdvancedKafkaProducerTest extends ProducerCase {
+public class AdvancedKafkaProducerExampleTest extends ProducerCase {
 
-  private static Logger log = LoggerFactory.getLogger(AdvancedKafkaProducerTest.class);
+  private static Logger log = LoggerFactory.getLogger(AdvancedKafkaProducerExampleTest.class);
 
-  public AdvancedKafkaProducerTest(String name) {
+  public AdvancedKafkaProducerExampleTest(String name) {
     super(name);
   }
 

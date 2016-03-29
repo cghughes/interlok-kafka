@@ -10,11 +10,11 @@ import com.adaptris.core.StandaloneProducer;
 import com.adaptris.kafka.ProducerConfigBuilder.Acks;
 import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
 
-public class BasicKafkaProducerTest extends ProducerCase {
+public class BasicKafkaProducerExampleTest extends ProducerCase {
 
-  private static Logger log = LoggerFactory.getLogger(BasicKafkaProducerTest.class);
+  private static Logger log = LoggerFactory.getLogger(BasicKafkaProducerExampleTest.class);
 
-  public BasicKafkaProducerTest(String name) {
+  public BasicKafkaProducerExampleTest(String name) {
     super(name);
   }
 
@@ -44,6 +44,12 @@ public class BasicKafkaProducerTest extends ProducerCase {
     StandaloneProducer result = new StandaloneProducer(new NullConnection(), producer);
 
     return result;
+  }
+
+  private StandardKafkaProducer createProducer(String bootstrapServer, String topic, String recordKey) {
+    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder(bootstrapServer);
+    StandardKafkaProducer producer = new StandardKafkaProducer(recordKey, new ConfiguredProduceDestination(topic), b);
+    return producer;
   }
 
 }
