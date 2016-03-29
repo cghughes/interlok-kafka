@@ -17,7 +17,6 @@ import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
 import com.adaptris.core.util.Args;
-import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -28,8 +27,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  *
  */
 @XStreamAlias("standard-apache-kafka-producer")
-@ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka",
-    recommended = {NullConnection.class})
+@ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka", recommended = {NullConnection.class})
 @DisplayOrder(order = {"recordKey", "producerConfig"})
 public class StandardKafkaProducer extends ProduceOnlyProducerImp {
 
@@ -38,9 +36,9 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   @NotNull
   @Valid
   private ProducerConfigBuilder producerConfig;
-  
+
   private transient Producer<String, AdaptrisMessage> producer;
-  
+
   public StandardKafkaProducer() {
     setProducerConfig(new BasicProducerConfigBuilder());
   }
@@ -64,7 +62,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
       producer = new KafkaProducer<>(getProducerConfig().build());
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
-      ExceptionHelper.rethrowCoreException(e);
+      throw new CoreException(e);
     }
   }
 
@@ -77,12 +75,10 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   }
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 
   @Override
-  public void prepare() throws CoreException {
-  }
+  public void prepare() throws CoreException {}
 
   @Override
   public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {
@@ -92,7 +88,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     } catch (CoreException e) {
       throw new ProduceException(e);
     }
-    
+
   }
 
   public ProducerConfigBuilder getProducerConfig() {
@@ -115,5 +111,5 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   public void setRecordKey(String k) {
     this.recordKey = Args.notNull(k, "key");
   }
-  
+
 }
