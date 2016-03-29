@@ -80,7 +80,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * Set the {@code bootstrap.servers} property.
    * <p>
    * A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. The client will make use of all
-   * servers irrespective of which servers are specified here for bootstrapping—this list only impacts the initial hosts used to
+   * servers irrespective of which servers are specified here for bootstrapping; this list only impacts the initial hosts used to
    * discover the full set of servers. This list should be in the form {@code host1:port1,host2:port2,....}. Since these servers are
    * just used for the initial connection to discover the full cluster membership (which may change dynamically), this list need not
    * contain the full set of servers (you may want more than one, though, in case a server is down).
@@ -154,7 +154,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * Setting a value greater than zero will cause the client to resend any record whose send fails with a potentially transient
    * error. Note that this retry is no different than if the client resent the record upon receiving the error. Allowing retries
    * will potentially change the ordering of records because if two records are sent to a single partition, and the first fails and
-   * is retried but the second succeeds, then the second record may appear first. *
+   * is retried but the second succeeds, then the second record may appear first.
    * </p>
    * 
    * @param i the number of retries, default is 0 if not specified.
