@@ -45,6 +45,10 @@ public class AdvancedProducerConfigBuilder implements ProducerConfigBuilder {
     setConfig(new KeyValuePairSet());
   }
 
+  public AdvancedProducerConfigBuilder(KeyValuePairSet cfg) {
+    setConfig(cfg);
+  }
+
   @Override
   public Properties build() throws CoreException {
     Properties result = new Properties();

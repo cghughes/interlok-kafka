@@ -36,8 +36,7 @@ public class BasicKafkaProducerTest extends ProducerCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
 
-    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder();
-    b.setBootstrapServers("localhost:4242");
+    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder("localhost:4242");
     b.setCompressionType(CompressionType.none);
     b.setAcks(Acks.all);
     StandardKafkaProducer producer =

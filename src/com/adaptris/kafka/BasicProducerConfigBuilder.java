@@ -27,9 +27,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("kafka-basic-producer-config")
 public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
-  private static final long DEFAULT_BUFFER_MEM = 33554432L;
-  private static final int DEFAULT_RETRIES = 0;
-  private static final String DEFAULT_SERIALIZER = StringSerializer.class.getName();
+  static final long DEFAULT_BUFFER_MEM = 33554432L;
+  static final int DEFAULT_RETRIES = 0;
+  static final String DEFAULT_SERIALIZER = StringSerializer.class.getName();
   private static final CompressionType DEFAULT_COMPRESSION_TYPE = ProducerConfigBuilder.CompressionType.none;
   private static final Acks DEFAULT_ACKS = ProducerConfigBuilder.Acks.all;
 
@@ -228,7 +228,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
   }
 
   String acks() {
-    return getAcks() != null ? getAcks().name() : DEFAULT_ACKS.name();
+    return getAcks() != null ? getAcks().actualValue() : DEFAULT_ACKS.actualValue();
   }
 
 }

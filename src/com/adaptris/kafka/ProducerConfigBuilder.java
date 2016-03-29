@@ -35,17 +35,27 @@ public interface ProducerConfigBuilder {
      * Equivalent to {@code 0} when specifying the number of acks.
      * 
      */
-    none,
+    none("0"),
     /**
      * Equivalent to {@code 1} when specifying the number of acks.
      * 
      */
-    local,
+    local("1"),
     /**
      * Equivalent to {@code all}.
      * 
      */
-    all
+    all("all");
+
+    private String actual;
+
+    Acks(String s) {
+      actual = s;
+    }
+
+    String actualValue() {
+      return actual;
+    }
   };
 
 
