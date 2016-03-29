@@ -90,33 +90,6 @@ public class BasicProducerConfigBuilderTest {
 
 
   @Test
-  public void testKeySerializer() {
-    BasicProducerConfigBuilder builder = new BasicProducerConfigBuilder();
-    assertNull(builder.getKeySerializer());
-    assertEquals(StringSerializer.class.getName(), builder.keySerializer());
-    builder.setKeySerializer(this.getClass().getName());
-    assertEquals(this.getClass().getName(), builder.getKeySerializer());
-    assertEquals(this.getClass().getName(), builder.keySerializer());
-    builder.setKeySerializer(null);
-    assertNull(builder.getKeySerializer());
-    assertEquals(StringSerializer.class.getName(), builder.keySerializer());
-  }
-
-  @Test
-  public void testValueSerializer() {
-    BasicProducerConfigBuilder builder = new BasicProducerConfigBuilder();
-    assertNull(builder.getValueSerializer());
-    assertEquals(StringSerializer.class.getName(), builder.valueSerializer());
-    builder.setValueSerializer(this.getClass().getName());
-    assertEquals(this.getClass().getName(), builder.getValueSerializer());
-    assertEquals(this.getClass().getName(), builder.valueSerializer());
-    builder.setValueSerializer(null);
-    assertNull(builder.getValueSerializer());
-    assertEquals(StringSerializer.class.getName(), builder.valueSerializer());
-  }
-
-
-  @Test
   public void testBuild() throws Exception {
     BasicProducerConfigBuilder builder = new BasicProducerConfigBuilder();
     builder.setBootstrapServers("localhost:4242");
@@ -126,5 +99,7 @@ public class BasicProducerConfigBuilderTest {
     assertEquals("localhost:4242", p.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
     assertEquals(CompressionType.none.name(), p.getProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG));
     assertEquals(Acks.all.name(), p.getProperty(ProducerConfig.ACKS_CONFIG));
+    assertEquals(StringSerializer.class.getName(), p.getProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
+    assertEquals(AdaptrisMessageSerializer.class.getName(), p.getProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
   }
 }

@@ -39,7 +39,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   @Valid
   private ProducerConfigBuilder producerConfig;
   
-  private transient Producer<String, String> producer;
+  private transient Producer<String, AdaptrisMessage> producer;
   
   public StandardKafkaProducer() {
     setProducerConfig(new BasicProducerConfigBuilder());
@@ -84,7 +84,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {
     try {
       String topic = destination.getDestination(msg);
-      producer.send(new ProducerRecord<String, String>(topic, getRecordKey(), msg.getContent()));
+      producer.send(new ProducerRecord<String, AdaptrisMessage>(topic, getRecordKey(), msg));
     } catch (CoreException e) {
       throw new ProduceException(e);
     }

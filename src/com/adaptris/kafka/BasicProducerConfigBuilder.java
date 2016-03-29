@@ -18,7 +18,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * <p>
  * Only "high" importance properties from <a href="http://kafka.apache.org/documentation.html#producerconfigs">the Apache Kafka
- * Producer Config Documentation</a> are exposed; all other properties are left as default.
+ * Producer Config Documentation</a> are exposed; all other properties are left as default. The {@code key.serializer} property is
+ * fixed to be a {@link StringSerializer}; and the {@code value.serializer} property is always an {@link AdaptrisMessageSerializer}.
  * </p>
  * 
  * @author lchan
@@ -29,17 +30,13 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
   static final long DEFAULT_BUFFER_MEM = 33554432L;
   static final int DEFAULT_RETRIES = 0;
-  static final String DEFAULT_SERIALIZER = StringSerializer.class.getName();
+  static final String DEFAULT_KEY_SERIALIZER = StringSerializer.class.getName();
   private static final CompressionType DEFAULT_COMPRESSION_TYPE = ProducerConfigBuilder.CompressionType.none;
   private static final Acks DEFAULT_ACKS = ProducerConfigBuilder.Acks.all;
 
 
   @NotBlank
   private String bootstrapServers;
-  @AdvancedConfig
-  private String keySerializer;
-  @AdvancedConfig
-  private String valueSerializer;
   @AdvancedConfig
   private Long bufferMemory;
   @AdvancedConfig
@@ -68,8 +65,8 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
     props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType());
     props.put(ProducerConfig.RETRIES_CONFIG, retries());
     props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory());
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer());
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer());
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AdaptrisMessageSerializer.class.getName());
     return props;
   }
 
@@ -93,44 +90,6 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    */
   public void setBootstrapServers(String s) {
     this.bootstrapServers = Args.notBlank(s, "bootstrap-servers");
-  }
-
-
-  public String getKeySerializer() {
-    return keySerializer;
-  }
-
-
-  /**
-   * Set the {@code key.serializer} property.
-   * 
-   * @param s the key serializer; default is {@link StringSerializer} if not specified
-   */
-  public void setKeySerializer(String keySerializer) {
-    this.keySerializer = keySerializer;
-  }
-
-  String keySerializer() {
-    return getKeySerializer() != null ? getKeySerializer() : DEFAULT_SERIALIZER;
-  }
-
-
-  public String getValueSerializer() {
-    return valueSerializer;
-  }
-
-
-  /**
-   * Set the {@code value.serializer} property.
-   * 
-   * @param s the value serializer; default is {@link StringSerializer} if not specified
-   */
-  public void setValueSerializer(String valueSerializer) {
-    this.valueSerializer = valueSerializer;
-  }
-
-  String valueSerializer() {
-    return getValueSerializer() != null ? getValueSerializer() : DEFAULT_SERIALIZER;
   }
 
   public Long getBufferMemory() {
