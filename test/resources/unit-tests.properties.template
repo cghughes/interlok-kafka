@@ -1,2 +1,4 @@
-junit.TransformServiceExamples.baseDir=${basedir}/build/example-xml
+junit.ProducerCase.baseDir=${basedir}/build/example-xml/producers
+junit.ConsumerCase.baseDir=${basedir}/build/example-xml/consumers
+junit.ServiceCase.baseDir=${basedir}/build/example-xml/services
 

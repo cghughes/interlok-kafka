@@ -13,7 +13,7 @@ import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("kafka-producer")
+@XStreamAlias("apache-kafka-producer")
 public class KafkaProducer extends ProduceOnlyProducerImp {
 
   private String bootstrapServers = "localhost:4242";
