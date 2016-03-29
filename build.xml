@@ -61,7 +61,9 @@
     <delete dir="${tests.output.dir}"/>
     <delete>
       <fileset file="${coverage.metadata.file}"/>
-
+      <fileset dir="${basedir}">
+        <include name="junit*.properties"/>
+      </fileset>
     </delete>
   </target>
 

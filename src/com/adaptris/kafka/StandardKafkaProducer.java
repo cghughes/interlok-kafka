@@ -55,6 +55,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
 
   @Override
   public void init() throws CoreException {
+    producer = null;
   }
 
   @Override
@@ -69,7 +70,10 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
 
   @Override
   public void stop() {
-    producer.close();
+    if (producer != null) {
+      producer.close();
+      producer = null;
+    }
   }
 
   @Override
