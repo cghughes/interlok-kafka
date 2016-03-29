@@ -402,7 +402,7 @@
         <delete file="${coverage.metadata.file}" />
         <jacoco:coverage  destfile="${coverage.metadata.file}">
           <junit printsummary="@{printsummary}" fork="@{fork}" forkmode="@{forkmode}" showoutput="@{showoutput}" failureproperty="junit.failed">
-            <jvmarg value="-Xmx2G"/>
+            <jvmarg value="-Xmx${execution.maxmem}"/>
             <jvmarg value="-XX:-UseSplitVerifier"/>
             <jvmarg value="-XX:+CMSClassUnloadingEnabled"/>
             <jvmarg value="-XX:+UseConcMarkSweepGC"/>
@@ -438,7 +438,7 @@
       <element name="junit-execution-filter" optional="true"/>
       <sequential>
         <junit printsummary="@{printsummary}" fork="@{fork}" forkmode="@{forkmode}" showoutput="@{showoutput}" failureproperty="junit.failed">
-          <jvmarg value="-Xmx2G"/>
+          <jvmarg value="-Xmx${execution.maxmem}"/>
           <jvmarg value="-XX:-UseSplitVerifier"/>
           <jvmarg value="-XX:+CMSClassUnloadingEnabled"/>
           <jvmarg value="-XX:+UseConcMarkSweepGC"/>

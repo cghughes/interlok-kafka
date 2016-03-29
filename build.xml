@@ -22,6 +22,8 @@
     <property name="doc.dir"                value="${basedir}/docs"/>
     <property name="example-xml.doc.zip"    value="${doc.dir}/example-xml.zip"/>
 
+    <property name="execution.maxmem" value="2G"/>
+
     <property name="classes.build.dir" value="${build.dir}/classes"/>
     <property name="testclasses.build.dir" value="${build.dir}/testclasses"/>
     <property name="doc.dir" value="${basedir}/docs"/>
