@@ -3,10 +3,12 @@ package com.adaptris.kafka;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.NullConnection;
 import com.adaptris.core.ProducerCase;
 import com.adaptris.core.StandaloneProducer;
-import com.adaptris.kafka.KafkaProducer;
+import com.adaptris.kafka.ProducerConfigBuilder.Acks;
+import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
 
 public class BasicKafkaProducerTest extends ProducerCase {
 
@@ -34,7 +36,12 @@ public class BasicKafkaProducerTest extends ProducerCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
 
-    KafkaProducer producer = new KafkaProducer();
+    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder();
+    b.setBootstrapServers("localhost:4242");
+    b.setCompressionType(CompressionType.none);
+    b.setAcks(Acks.all);
+    StandardKafkaProducer producer =
+        new StandardKafkaProducer("MyProducerRecordKey", new ConfiguredProduceDestination("MyTopic"), b);
     StandaloneProducer result = new StandaloneProducer(new NullConnection(), producer);
 
     return result;
