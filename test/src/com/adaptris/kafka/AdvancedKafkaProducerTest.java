@@ -1,5 +1,6 @@
 package com.adaptris.kafka;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,12 +10,13 @@ import com.adaptris.core.ProducerCase;
 import com.adaptris.core.StandaloneProducer;
 import com.adaptris.kafka.ProducerConfigBuilder.Acks;
 import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
+import com.adaptris.util.KeyValuePair;
 
-public class BasicKafkaProducerTest extends ProducerCase {
+public class AdvancedKafkaProducerTest extends ProducerCase {
 
-  private static Logger log = LoggerFactory.getLogger(BasicKafkaProducerTest.class);
+  private static Logger log = LoggerFactory.getLogger(AdvancedKafkaProducerTest.class);
 
-  public BasicKafkaProducerTest(String name) {
+  public AdvancedKafkaProducerTest(String name) {
     super(name);
   }
 
@@ -30,16 +32,17 @@ public class BasicKafkaProducerTest extends ProducerCase {
 
   @Override
   protected String createBaseFileName(Object object) {
-    return ((StandaloneProducer) object).getProducer().getClass().getName() + "-BasicProducerConfig";
+    return ((StandaloneProducer) object).getProducer().getClass().getName() + "-AdvancedProducerConfig";
   }
 
   @Override
   protected Object retrieveObjectForSampleConfig() {
 
-    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder();
-    b.setBootstrapServers("localhost:4242");
-    b.setCompressionType(CompressionType.none);
-    b.setAcks(Acks.all);
+    AdvancedProducerConfigBuilder b = new AdvancedProducerConfigBuilder();
+    b.getConfig().add(new KeyValuePair(ProducerConfig.ACKS_CONFIG, Acks.all.name()));
+    b.getConfig().add(new KeyValuePair(ProducerConfig.LINGER_MS_CONFIG, "10"));
+    b.getConfig().add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
+    b.getConfig().add(new KeyValuePair(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.lz4.name()));    
     StandardKafkaProducer producer =
         new StandardKafkaProducer("MyProducerRecordKey", new ConfiguredProduceDestination("MyTopic"), b);
     StandaloneProducer result = new StandaloneProducer(new NullConnection(), producer);

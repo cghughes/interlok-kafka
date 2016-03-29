@@ -2,6 +2,8 @@ package com.adaptris.kafka;
 
 import java.util.Properties;
 
+import com.adaptris.core.CoreException;
+
 public interface ProducerConfigBuilder {
 
 
@@ -47,5 +49,5 @@ public interface ProducerConfigBuilder {
   };
 
 
-  Properties build();
+  Properties build() throws CoreException;
 }

@@ -9,6 +9,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.adaptris.annotation.AdvancedConfig;
+import com.adaptris.core.CoreException;
+import com.adaptris.core.util.Args;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -59,7 +61,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
 
   @Override
-  public Properties build() {
+  public Properties build() throws CoreException {
     Properties props = new Properties();
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
     props.put(ProducerConfig.ACKS_CONFIG, acks());
@@ -90,7 +92,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * @param s the bootstrap servers
    */
   public void setBootstrapServers(String s) {
-    this.bootstrapServers = s;
+    this.bootstrapServers = Args.notBlank(s, "bootstrap-servers");
   }
 
 
