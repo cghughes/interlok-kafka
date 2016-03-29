@@ -7,7 +7,9 @@ import java.util.Properties;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
@@ -81,6 +83,8 @@ public class AdvancedProducerConfigBuilder implements ProducerConfigBuilder {
         result.setProperty(pwKey, Password.decode(result.getProperty(pwKey)));
       }
     }
+    result.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    result.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AdaptrisMessageSerializer.class.getName());
     return result;
   }
 }
