@@ -65,6 +65,7 @@
       <fileset file="${coverage.metadata.file}"/>
       <fileset dir="${basedir}">
         <include name="junit*.properties"/>
+        <include name="jacoco.exec"/>
       </fileset>
     </delete>
   </target>

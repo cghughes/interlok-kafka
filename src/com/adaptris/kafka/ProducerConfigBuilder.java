@@ -1,10 +1,6 @@
 package com.adaptris.kafka;
 
-import java.util.Properties;
-
-import com.adaptris.core.CoreException;
-
-public interface ProducerConfigBuilder {
+public interface ProducerConfigBuilder extends ConfigBuilder {
 
 
   enum CompressionType {
@@ -57,7 +53,4 @@ public interface ProducerConfigBuilder {
       return actual;
     }
   };
-
-
-  Properties build() throws CoreException;
 }

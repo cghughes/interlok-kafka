@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -95,11 +95,11 @@ public class BasicProducerConfigBuilderTest {
     builder.setBootstrapServers("localhost:4242");
     builder.setCompressionType(CompressionType.none);
     builder.setAcks(Acks.all);
-    Properties p = builder.build();
-    assertEquals("localhost:4242", p.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-    assertEquals(CompressionType.none.name(), p.getProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG));
-    assertEquals(Acks.all.name(), p.getProperty(ProducerConfig.ACKS_CONFIG));
-    assertEquals(StringSerializer.class.getName(), p.getProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
-    assertEquals(AdaptrisMessageSerializer.class.getName(), p.getProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
+    Map<String, Object> p = builder.build();
+    assertEquals("localhost:4242", p.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
+    assertEquals(CompressionType.none.name(), p.get(ProducerConfig.COMPRESSION_TYPE_CONFIG));
+    assertEquals(Acks.all.name(), p.get(ProducerConfig.ACKS_CONFIG));
+    assertEquals(StringSerializer.class.getName(), p.get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
+    assertEquals(AdaptrisMessageSerializer.class.getName(), p.get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
   }
 }

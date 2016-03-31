@@ -11,7 +11,7 @@ import kafka.utils.ZkUtils;
 
 public class KafkaServerWrapper {
 
-  private static final int DEFAULT_TIMEOUT = 10000;
+  private static final int DEFAULT_TIMEOUT = 30000;
   private static final int DEFAULT_PARTITIONS = 10;
   private static final int DEFAULT_REPL_FACTOR = 1;
 

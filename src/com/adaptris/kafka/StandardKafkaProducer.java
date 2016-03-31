@@ -24,7 +24,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * 
  * @author gdries
- *
+ * @author lchan
+ * @config standard-apache-kafka-producer
+ * 
  */
 @XStreamAlias("standard-apache-kafka-producer")
 @ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka", recommended = {NullConnection.class})

@@ -1,22 +1,13 @@
 package com.adaptris.kafka;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import com.adaptris.core.CoreException;
-import com.adaptris.core.util.Args;
-import com.adaptris.core.util.ExceptionHelper;
-import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
-import com.adaptris.util.KeyValuePairBag;
 import com.adaptris.util.KeyValuePairSet;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -34,61 +25,25 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * </p>
  * 
  * @author lchan
- *
+ * @config kafka-advanced-producer-config
  */
 @XStreamAlias("kafka-advanced-producer-config")
-public class AdvancedProducerConfigBuilder implements ProducerConfigBuilder {
-
-  private static final List<String> PASSWORD_KEYS = Arrays.asList(new String[] {SslConfigs.SSL_KEY_PASSWORD_CONFIG,
-      SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG});
-
-  @NotNull
-  @Valid
-  private KeyValuePairSet config;
+public class AdvancedProducerConfigBuilder extends AdvancedConfigBuilderImpl implements ProducerConfigBuilder {
 
 
   public AdvancedProducerConfigBuilder() {
-    setConfig(new KeyValuePairSet());
+    super();
   }
 
   public AdvancedProducerConfigBuilder(KeyValuePairSet cfg) {
-    setConfig(cfg);
+    super(cfg);
   }
 
   @Override
-  public Properties build() throws CoreException {
-    Properties result = new Properties();
-    try {
-      result = convertAndDecode(getConfig());
-    } catch (PasswordException e) {
-      ExceptionHelper.rethrowCoreException(e);
-    }
-    return result;
-  }
-
-  /**
-   * @return the config
-   */
-  public KeyValuePairSet getConfig() {
-    return config;
-  }
-
-  /**
-   * @param config the config to set
-   */
-  public void setConfig(KeyValuePairSet config) {
-    this.config = Args.notNull(config, "config");
-  }
-
-  private static Properties convertAndDecode(KeyValuePairSet kvps) throws PasswordException {
-    Properties result = KeyValuePairBag.asProperties(kvps);
-    for (String pwKey : PASSWORD_KEYS) {
-      if (result.containsKey(pwKey)) {
-        result.setProperty(pwKey, Password.decode(result.getProperty(pwKey)));
-      }
-    }
-    result.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    result.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AdaptrisMessageSerializer.class.getName());
+  public Map<String, Object> build() throws CoreException {
+    Map<String, Object> result = convertAndDecode(getConfig());
+    result.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+    result.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
     return result;
   }
 }

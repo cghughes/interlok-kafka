@@ -2,30 +2,28 @@ package com.adaptris.kafka;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.Map;
 
-import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.junit.Test;
 
 import com.adaptris.core.CoreException;
-import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
 import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.KeyValuePairSet;
 
-public class AdvancedProducerConfigBuilderTest {
+public class AdvancedConsumerConfigBuilderTest {
 
   @Test
   public void testConfig() {
-    AdvancedProducerConfigBuilder builder = new AdvancedProducerConfigBuilder();
+    AdvancedConsumerConfigBuilder builder = new AdvancedConsumerConfigBuilder();
     assertNotNull(builder.getConfig());
     KeyValuePairSet myConfig = new KeyValuePairSet();
-    myConfig.add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
+    myConfig.add(new KeyValuePair(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
     builder.setConfig(myConfig);
     assertEquals(myConfig, builder.getConfig());
     try {
@@ -41,28 +39,23 @@ public class AdvancedProducerConfigBuilderTest {
   @Test
   public void testBuild() throws Exception {
     KeyValuePairSet myConfig = new KeyValuePairSet();
-    myConfig.add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
-    myConfig.add(new KeyValuePair(ProducerConfig.LINGER_MS_CONFIG, "10"));
-    myConfig.add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
-    myConfig.add(new KeyValuePair(ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.lz4.name()));
+    myConfig.add(new KeyValuePair(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
     myConfig.add(new KeyValuePair(SslConfigs.SSL_KEY_PASSWORD_CONFIG, Password.encode("MyPassword", Password.PORTABLE_PASSWORD)));
-    AdvancedProducerConfigBuilder builder = new AdvancedProducerConfigBuilder(myConfig);
+    AdvancedConsumerConfigBuilder builder = new AdvancedConsumerConfigBuilder(myConfig);
 
     Map<String, Object> p = builder.build();
-    assertEquals("localhost:4242", p.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-    assertEquals(CompressionType.lz4.name(), p.get(ProducerConfig.COMPRESSION_TYPE_CONFIG));
-    assertNull(p.get(ProducerConfig.ACKS_CONFIG));
-    assertEquals("10", p.get(ProducerConfig.LINGER_MS_CONFIG));
+    assertEquals("localhost:4242", p.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
     assertEquals("MyPassword", p.get(SslConfigs.SSL_KEY_PASSWORD_CONFIG));
   }
 
   @Test
   public void testBuild_WithDuffPassword() throws Exception {
     KeyValuePairSet myConfig = new KeyValuePairSet();
-    myConfig.add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
+    myConfig.add(new KeyValuePair(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:4242"));
     myConfig.add(new KeyValuePair(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "PW:ABCDEWF"));
 
-    AdvancedProducerConfigBuilder builder = new AdvancedProducerConfigBuilder(myConfig);
+    AdvancedConsumerConfigBuilder builder = new AdvancedConsumerConfigBuilder(myConfig);
+
     try {
       Map<String, Object> p = builder.build();
       fail();

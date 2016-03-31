@@ -1,6 +1,7 @@
 package com.adaptris.kafka;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.validation.constraints.Min;
 
@@ -9,6 +10,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.adaptris.annotation.AdvancedConfig;
+import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -23,14 +25,14 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * </p>
  * 
  * @author lchan
- *
+ * @config kafka-basic-producer-config
  */
 @XStreamAlias("kafka-basic-producer-config")
+@DisplayOrder(order = {"bootstrapServers", "acks", "retries", "compressionType", "bufferMemory"})
 public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
   static final long DEFAULT_BUFFER_MEM = 33554432L;
   static final int DEFAULT_RETRIES = 0;
-  static final String DEFAULT_KEY_SERIALIZER = StringSerializer.class.getName();
   private static final CompressionType DEFAULT_COMPRESSION_TYPE = ProducerConfigBuilder.CompressionType.none;
   private static final Acks DEFAULT_ACKS = ProducerConfigBuilder.Acks.all;
 
@@ -58,15 +60,15 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
 
   @Override
-  public Properties build() throws CoreException {
-    Properties props = new Properties();
+  public Map<String, Object> build() throws CoreException {
+    Map<String, Object> props = new HashMap<>();
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
     props.put(ProducerConfig.ACKS_CONFIG, acks());
     props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType());
     props.put(ProducerConfig.RETRIES_CONFIG, retries());
     props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory());
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AdaptrisMessageSerializer.class.getName());
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
     return props;
   }
 
