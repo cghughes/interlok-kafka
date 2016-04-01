@@ -1,5 +1,7 @@
 package com.adaptris.kafka;
 
+import java.util.Map;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -17,6 +19,7 @@ import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
 import com.adaptris.core.util.Args;
+import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -61,12 +64,17 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   @Override
   public void start() throws CoreException {
     try {
-      producer = new KafkaProducer<>(getProducerConfig().build());
+      producer = createProducer(getProducerConfig().build());
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
-      throw new CoreException(e);
+      throw ExceptionHelper.wrapCoreException(e);
     }
   }
+
+  KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+    return new KafkaProducer<String, AdaptrisMessage>(config);
+  }
+
 
   @Override
   public void stop() {
@@ -87,10 +95,9 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     try {
       String topic = destination.getDestination(msg);
       producer.send(new ProducerRecord<String, AdaptrisMessage>(topic, getRecordKey(), msg));
-    } catch (CoreException e) {
-      throw new ProduceException(e);
+    } catch (Exception e) {
+      throw ExceptionHelper.wrapProduceException(e);
     }
-
   }
 
   public ProducerConfigBuilder getProducerConfig() {

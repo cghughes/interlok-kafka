@@ -81,7 +81,7 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultIfEmpty(getUniqueId(), GUID.safeUUID()));
       }
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
-      consumer = new KafkaConsumer<>(props);
+      consumer = createConsumer(props);
       List<String> topics = asList(getDestination().getDestination());
       logPartitions(topics);
       consumer.subscribe(topics);
@@ -105,9 +105,7 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
 
 
   @Override
-  protected void prepareConsumer() throws CoreException {
-
-  }
+  protected void prepareConsumer() throws CoreException {}
 
   private void closeConsumer() {
     try {
@@ -160,6 +158,9 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
     return receiveTimeout;
   }
 
+  KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
+    return new KafkaConsumer<String, AdaptrisMessage>(config);
+  }
 
   /**
    * @return the logAllExceptions
