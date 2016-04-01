@@ -37,9 +37,9 @@ import com.adaptris.kafka.embedded.KafkaServerWrapper;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.TimeInterval;
 
-public class InlineKafkaTest {
+public class InlineKafkaCase {
 
-  private static Logger log = LoggerFactory.getLogger(InlineKafkaTest.class);
+  private static Logger log = LoggerFactory.getLogger(InlineKafkaCase.class);
 
   private static KafkaServerWrapper wrapper;
 
@@ -121,15 +121,16 @@ public class InlineKafkaTest {
     try {
       String text = testName.getMethodName();
       sp = new StandaloneProducer(createProducer(wrapper.getConnections(), text, text));
+      wrapper.createTopic(text);
       MockMessageListener mock = new MockMessageListener();
       sc = createConsumer(wrapper.getConnections(), text, mock);
       AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
-      // BaseCase.start(sc);
+      BaseCase.start(sc);
       ServiceCase.execute(sp, msg);
-      // BaseCase.waitForMessages(mock, 1);
-      // assertEquals(1, mock.getMessages().size());
-      // AdaptrisMessage consumed = mock.getMessages().get(0);
-      // assertEquals(text, consumed.getContent());
+      BaseCase.waitForMessages(mock, 1);
+      assertEquals(1, mock.getMessages().size());
+      AdaptrisMessage consumed = mock.getMessages().get(0);
+      assertEquals(text, consumed.getContent());
     } finally {
       BaseCase.stop(sc, sp);
     }
