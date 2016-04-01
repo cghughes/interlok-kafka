@@ -41,7 +41,11 @@ public class AdaptrisMessageDeserializer implements Deserializer<AdaptrisMessage
   public AdaptrisMessage deserialize(String topic, byte[] data) {
     AdaptrisMessage result = factory.newMessage(data);
     result.addMessageHeader(KAFKA_TOPIC_KEY, topic);
-    return null;
+    return result;
+  }
+
+  AdaptrisMessageFactory messageFactory() {
+    return factory;
   }
 
 }
