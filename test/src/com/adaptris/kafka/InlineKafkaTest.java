@@ -37,9 +37,9 @@ import com.adaptris.kafka.embedded.KafkaServerWrapper;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.TimeInterval;
 
-public class StandardKafkaProducerTest {
+public class InlineKafkaTest {
 
-  private static Logger log = LoggerFactory.getLogger(StandardKafkaProducerTest.class);
+  private static Logger log = LoggerFactory.getLogger(InlineKafkaTest.class);
 
   private static KafkaServerWrapper wrapper;
 
