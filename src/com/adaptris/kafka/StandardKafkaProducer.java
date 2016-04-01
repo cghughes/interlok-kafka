@@ -20,7 +20,7 @@ import com.adaptris.core.util.Args;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * Wrapper around {@link new org.apache.kafka.clients.producer.KafkaProducer}.
+ * Wrapper around {@link KafkaProducer}.
  * 
  * 
  * @author gdries

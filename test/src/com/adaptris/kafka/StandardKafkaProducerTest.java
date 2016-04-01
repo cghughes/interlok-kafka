@@ -1,7 +1,11 @@
 package com.adaptris.kafka;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.TimeUnit;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -13,15 +17,25 @@ import org.slf4j.LoggerFactory;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
+import com.adaptris.core.BaseCase;
+import com.adaptris.core.ClosedState;
+import com.adaptris.core.ConfiguredConsumeDestination;
 import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.CoreException;
+import com.adaptris.core.FixedIntervalPoller;
+import com.adaptris.core.InitialisedState;
 import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ServiceCase;
+import com.adaptris.core.StandaloneConsumer;
 import com.adaptris.core.StandaloneProducer;
+import com.adaptris.core.StartedState;
+import com.adaptris.core.StoppedState;
+import com.adaptris.core.stubs.MockMessageListener;
 import com.adaptris.core.util.LifecycleHelper;
 import com.adaptris.kafka.ProducerConfigBuilder.Acks;
 import com.adaptris.kafka.embedded.KafkaServerWrapper;
 import com.adaptris.util.KeyValuePair;
+import com.adaptris.util.TimeInterval;
 
 public class StandardKafkaProducerTest {
 
@@ -64,7 +78,7 @@ public class StandardKafkaProducerTest {
   }
 
   @Test
-  public void testLifecycle() throws Exception {
+  public void testProducerLifecycle() throws Exception {
     String text = testName.getMethodName();
     StandardKafkaProducer p = createProducer(wrapper.getConnections(), text, text);
     try {
@@ -80,16 +94,53 @@ public class StandardKafkaProducerTest {
 
 
   @Test
-  public void testSend() throws Exception {
+  public void testConsumerLifecycle() throws Exception {
+    String text = testName.getMethodName();
+    MockMessageListener mock = new MockMessageListener();
+    StandaloneConsumer sc = createConsumer(wrapper.getConnections(), text, mock);
     try {
-      String text = testName.getMethodName();
-      StandaloneProducer p = new StandaloneProducer(createProducer(wrapper.getConnections(), text, text));
-      AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
-      ServiceCase.execute(p, msg);
+      LifecycleHelper.init(sc);
+      assertEquals(InitialisedState.getInstance(), sc.retrieveComponentState());
+      LifecycleHelper.start(sc);
+      assertEquals(StartedState.getInstance(), sc.retrieveComponentState());
+      Thread.sleep(1000);
+      LifecycleHelper.stop(sc);
+      assertEquals(StoppedState.getInstance(), sc.retrieveComponentState());
+      LifecycleHelper.close(sc);
+      assertEquals(ClosedState.getInstance(), sc.retrieveComponentState());
     } finally {
+      BaseCase.stop(sc);
     }
   }
 
+
+  @Test
+  public void testSendAndReceive_Polling() throws Exception {
+    StandaloneConsumer sc = null;
+    StandaloneProducer sp = null;
+    try {
+      String text = testName.getMethodName();
+      sp = new StandaloneProducer(createProducer(wrapper.getConnections(), text, text));
+      MockMessageListener mock = new MockMessageListener();
+      sc = createConsumer(wrapper.getConnections(), text, mock);
+      AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
+      // BaseCase.start(sc);
+      ServiceCase.execute(sp, msg);
+      // BaseCase.waitForMessages(mock, 1);
+      // assertEquals(1, mock.getMessages().size());
+      // AdaptrisMessage consumed = mock.getMessages().get(0);
+      // assertEquals(text, consumed.getContent());
+    } finally {
+      BaseCase.stop(sc, sp);
+    }
+  }
+
+
+  private StandaloneConsumer createConsumer(String bootstrapServer, String topic, MockMessageListener p) {
+    StandaloneConsumer sc = new StandaloneConsumer(createConsumer(bootstrapServer, topic));
+    sc.registerAdaptrisMessageListener(p);
+    return sc;
+  }
 
   private StandardKafkaProducer createProducer(String bootstrapServer, String recordKey, String topic) {
     AdvancedProducerConfigBuilder builder = new AdvancedProducerConfigBuilder();
@@ -100,6 +151,16 @@ public class StandardKafkaProducerTest {
     builder.getConfig().add(new KeyValuePair(ProducerConfig.MAX_BLOCK_MS_CONFIG, "100"));
     return createProducer(recordKey, new ConfiguredProduceDestination(topic), builder);
   }
+
+  private StandardKafkaConsumer createConsumer(String bootstrapServer, String topic) {
+    AdvancedConsumerConfigBuilder builder = new AdvancedConsumerConfigBuilder();
+    builder.getConfig().add(new KeyValuePair(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer));
+    StandardKafkaConsumer result = new StandardKafkaConsumer(new ConfiguredConsumeDestination(topic), builder);
+    result.setPoller(new FixedIntervalPoller(new TimeInterval(100L, TimeUnit.MILLISECONDS)));
+    result.setReceiveTimeout(new TimeInterval(2L, TimeUnit.SECONDS));
+    return result;
+  }
+
 
   private StandardKafkaProducer createProducer(String recordKey, ProduceDestination d, ProducerConfigBuilder builder) {
     return new StandardKafkaProducer(recordKey, d, builder);

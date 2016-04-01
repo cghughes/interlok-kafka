@@ -28,7 +28,7 @@ import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * Wrapper around {@link new org.apache.kafka.clients.producer.KafkaProducer}.
+ * Wrapper around {@link KafkaConsumer}.
  * 
  * 
  * @author lchan
@@ -40,7 +40,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @DisplayOrder(order = {"destination", "consumerConfig", "receiveTimeout", "logAllExceptions"})
 public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
 
-  private static final TimeInterval DEFAULT_RECV_TIMEOUT_INTERVAL = new TimeInterval(2L, TimeUnit.SECONDS.name());
+  private static final TimeInterval DEFAULT_RECV_TIMEOUT_INTERVAL = new TimeInterval(2L, TimeUnit.SECONDS);
 
   @NotNull
   @Valid
@@ -84,6 +84,7 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
 
   @Override
   public void stop() {
+    closeConsumer();
     super.stop();
   }
 
@@ -98,11 +99,26 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
 
   }
 
+  private void closeConsumer() {
+    try {
+      if (consumer != null) {
+        consumer.wakeup();
+        consumer.close();
+        consumer = null;
+      }
+    } catch (RuntimeException e) {
+
+    }
+
+  }
+
   @Override
   protected int processMessages() {
     int proc = 0;
     try {
+      System.out.println("Going to Poll");
       ConsumerRecords<String, AdaptrisMessage> records = consumer.poll(receiveTimeoutMs());
+      System.out.println("Got Records : " + records.count());
       for (ConsumerRecord<String, AdaptrisMessage> record : records) {
         retrieveAdaptrisMessageListener().onAdaptrisMessage(record.value());
         proc++;
