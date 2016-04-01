@@ -142,6 +142,7 @@
     <delete dir="${tests.output.dir}"/>
     <mkdir dir="${tests.output.dir}"/>
     <mkdir dir="${html.tests.output.dir}"/>
+    <adapter:copy-template src="${test.resources.dir}/log4j.properties.template" dest="${test.resources.dir}/log4j.properties"/>
   </target>
 
 
