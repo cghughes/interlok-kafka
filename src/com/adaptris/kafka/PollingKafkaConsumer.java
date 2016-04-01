@@ -36,13 +36,13 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * 
  * @author lchan
- * @config standard-apache-kafka-consumer
+ * @config polling-apache-kafka-consumer
  * 
  */
-@XStreamAlias("standard-apache-kafka-consumer")
+@XStreamAlias("polling-apache-kafka-consumer")
 @ComponentProfile(summary = "Receive messages via Apache Kafka", tag = "consumer,kafka", recommended = {NullConnection.class})
-@DisplayOrder(order = {"destination", "consumerConfig", "receiveTimeout", "logAllExceptions"})
-public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
+@DisplayOrder(order = {"destination", "consumerConfig", "receiveTimeout", "additionalDebug"})
+public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
 
   private static final TimeInterval DEFAULT_RECV_TIMEOUT_INTERVAL = new TimeInterval(2L, TimeUnit.SECONDS);
 
@@ -57,11 +57,11 @@ public class StandardKafkaConsumer extends AdaptrisPollingConsumer {
   private transient KafkaConsumer<String, AdaptrisMessage> consumer;
   private transient static GuidGenerator GUID = new GuidGenerator();
 
-  public StandardKafkaConsumer() {
+  public PollingKafkaConsumer() {
     setConsumerConfig(new BasicConsumerConfigBuilder());
   }
 
-  public StandardKafkaConsumer(ConsumeDestination d, ConsumerConfigBuilder b) {
+  public PollingKafkaConsumer(ConsumeDestination d, ConsumerConfigBuilder b) {
     setConsumerConfig(b);
     setDestination(d);
   }

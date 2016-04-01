@@ -53,8 +53,8 @@ public class MockPollingConsumerTest {
     final String text = testName.getMethodName();
     final KafkaConsumer<String, AdaptrisMessage> kafkaConsumer = Mockito.mock(KafkaConsumer.class);
     ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
-    StandardKafkaConsumer consumer =
-        new StandardKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+    PollingKafkaConsumer consumer =
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             return kafkaConsumer;
@@ -80,8 +80,8 @@ public class MockPollingConsumerTest {
     final String text = testName.getMethodName();
     final KafkaConsumer<String, AdaptrisMessage> kafkaConsumer = Mockito.mock(KafkaConsumer.class);
     ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
-    StandardKafkaConsumer consumer =
-        new StandardKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+    PollingKafkaConsumer consumer =
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             throw new RuntimeException(text);
@@ -113,8 +113,8 @@ public class MockPollingConsumerTest {
     ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
     ConsumerRecord<String, AdaptrisMessage> record = new ConsumerRecord<String, AdaptrisMessage>(text, 0, 0, text, msg);
 
-    StandardKafkaConsumer consumer =
-        new StandardKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+    PollingKafkaConsumer consumer =
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             return kafkaConsumer;

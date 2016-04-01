@@ -153,10 +153,10 @@ public class InlineKafkaCase {
     return createProducer(recordKey, new ConfiguredProduceDestination(topic), builder);
   }
 
-  private StandardKafkaConsumer createConsumer(String bootstrapServer, String topic) {
+  private PollingKafkaConsumer createConsumer(String bootstrapServer, String topic) {
     AdvancedConsumerConfigBuilder builder = new AdvancedConsumerConfigBuilder();
     builder.getConfig().add(new KeyValuePair(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer));
-    StandardKafkaConsumer result = new StandardKafkaConsumer(new ConfiguredConsumeDestination(topic), builder);
+    PollingKafkaConsumer result = new PollingKafkaConsumer(new ConfiguredConsumeDestination(topic), builder);
     result.setPoller(new FixedIntervalPoller(new TimeInterval(100L, TimeUnit.MILLISECONDS)));
     result.setReceiveTimeout(new TimeInterval(2L, TimeUnit.SECONDS));
     return result;

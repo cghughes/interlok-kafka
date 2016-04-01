@@ -40,7 +40,7 @@ public class AdvancedKafkaConsumerExampleTest extends ConsumerCase {
     myConfig.add(new KeyValuePair(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "2000"));
     myConfig.add(new KeyValuePair(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, "62000"));
     myConfig.add(new KeyValuePair(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000"));
-    StandardKafkaConsumer c = new StandardKafkaConsumer(new ConfiguredConsumeDestination("myTopic"),new AdvancedConsumerConfigBuilder(myConfig));
+    PollingKafkaConsumer c = new PollingKafkaConsumer(new ConfiguredConsumeDestination("myTopic"),new AdvancedConsumerConfigBuilder(myConfig));
     return new StandaloneConsumer(c);
   }
 

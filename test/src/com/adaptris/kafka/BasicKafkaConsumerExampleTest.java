@@ -33,7 +33,7 @@ public class BasicKafkaConsumerExampleTest extends ConsumerCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
     BasicConsumerConfigBuilder b = new BasicConsumerConfigBuilder("localhost:4242");
-    StandardKafkaConsumer c = new StandardKafkaConsumer(new ConfiguredConsumeDestination("myTopic"), b);
+    PollingKafkaConsumer c = new PollingKafkaConsumer(new ConfiguredConsumeDestination("myTopic"), b);
     return new StandaloneConsumer(c);
   }
 
