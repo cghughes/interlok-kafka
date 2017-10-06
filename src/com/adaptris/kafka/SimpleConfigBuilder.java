@@ -5,42 +5,38 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
+import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
- * Basic implementation of {@link ProducerConfigBuilder}.
+ * Simple implementation of {@link ConfigBuilder} for use with {@link KafkaConnection}.
  * 
- * <p>
- * Only "high" importance properties from <a href="http://kafka.apache.org/documentation.html#producerconfigs">the Apache Kafka
- * Producer Config Documentation</a> are exposed; all other properties are left as default. The {@code key.serializer} property is
- * fixed to be a {@link StringSerializer}; and the {@code value.serializer} property is always an {@link AdaptrisMessageSerializer}.
- * </p>
  * 
  * @author lchan
- * @config kafka-basic-producer-config
- * @deprecated since 3.7.0; you should use a {@link KafkaConnection} with {@link StandardKafkaProducer}
+ * @config kafka-simple-config-builder
  */
-@XStreamAlias("kafka-basic-producer-config")
-@DisplayOrder(order = {"bootstrapServers", "acks", "retries", "compressionType", "bufferMemory"})
-@Deprecated
-public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
+@XStreamAlias("kafka-simple-config-builder")
+@DisplayOrder(order = {"bootstrapServers", "groupId", "acks", "retries", "compressionType", "bufferMemory"})
+public class SimpleConfigBuilder implements ConfigBuilder {
 
-  static final long DEFAULT_BUFFER_MEM = 33554432L;
-  static final int DEFAULT_RETRIES = 0;
-  private static final CompressionType DEFAULT_COMPRESSION_TYPE = ProducerConfigBuilder.CompressionType.none;
-  private static final Acks DEFAULT_ACKS = ProducerConfigBuilder.Acks.all;
-
+  private static final long DEFAULT_BUFFER_MEM = 33554432L;
+  private static final int DEFAULT_RETRIES = 0;
+  private static final CompressionType DEFAULT_COMPRESSION_TYPE = ConfigBuilder.CompressionType.none;
+  private static final Acks DEFAULT_ACKS = ConfigBuilder.Acks.all;
 
   @NotBlank
   private String bootstrapServers;
+
+  private String groupId;
   @AdvancedConfig
   private Long bufferMemory;
   @AdvancedConfig
@@ -51,11 +47,11 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
   @Min(0)
   private Integer retries;
 
-  public BasicProducerConfigBuilder() {
+  public SimpleConfigBuilder() {
 
   }
 
-  public BasicProducerConfigBuilder(String bootstrapServers) {
+  public SimpleConfigBuilder(String bootstrapServers) {
     this();
     setBootstrapServers(bootstrapServers);
   }
@@ -64,13 +60,20 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
   @Override
   public Map<String, Object> build() throws CoreException {
     Map<String, Object> props = new HashMap<>();
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
-    props.put(ProducerConfig.ACKS_CONFIG, acks());
-    props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType());
-    props.put(ProducerConfig.RETRIES_CONFIG, retries());
-    props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory());
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+    try {
+      Args.notBlank(getBootstrapServers(), "bootstrapServers");
+      addEntry(props, CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+      addEntry(props, ConsumerConfig.GROUP_ID_CONFIG, getGroupId());
+      addEntry(props, ProducerConfig.ACKS_CONFIG, Acks.toConfigValue(getAcks()));
+      addEntry(props, ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.toConfigValue(getCompressionType()));
+      addEntry(props, ProducerConfig.RETRIES_CONFIG, getRetries());
+      addEntry(props, ProducerConfig.BUFFER_MEMORY_CONFIG, getBufferMemory());
+      addEntry(props, ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+      addEntry(props, ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+    }
+    catch (IllegalArgumentException e) {
+      throw ExceptionHelper.wrapCoreException(e);
+    }
     return props;
   }
 
@@ -117,7 +120,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * well as for maintaining in-flight requests.
    * </p>
    * 
-   * @param m the buffer memory; default is 33554432L if not specified.
+   * @param m the buffer memory
    */
   public void setBufferMemory(Long m) {
     this.bufferMemory = m;
@@ -136,15 +139,10 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * ratio (more batching means better compression).
    * </p>
    * 
-   * @param t the compression type; default is {@link CompressionType#none} if not specified.
+   * @param t the compression type
    */
   public void setCompressionType(CompressionType t) {
     this.compressionType = t;
-  }
-
-
-  String compressionType() {
-    return getCompressionType() != null ? getCompressionType().name() : DEFAULT_COMPRESSION_TYPE.name();
   }
 
   public Integer getRetries() {
@@ -167,14 +165,9 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
     this.retries = i;
   }
 
-  int retries() {
-    return getRetries() != null ? getRetries().intValue() : DEFAULT_RETRIES;
-  }
-
   public Acks getAcks() {
     return acks;
   }
-
 
   /**
    * Set the {@code acks} property.
@@ -190,8 +183,30 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
     this.acks = a;
   }
 
-  String acks() {
-    return getAcks() != null ? getAcks().actualValue() : DEFAULT_ACKS.actualValue();
+  /**
+   * @return the groupId
+   */
+  public String getGroupId() {
+    return groupId;
   }
 
+  /**
+   * Set the {@code group.id} property.
+   * <p>
+   * A unique string that identifies the consumer group this consumer belongs to. This property is required if the consumer uses
+   * either the group management functionality by using subscribe(topic) or the Kafka-based offset management strategy.
+   * </p>
+   * 
+   * @param groupId the groupId to set
+   */
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
+  }
+
+  private static Map<String, Object> addEntry(Map<String, Object> properties, String propertyName, Object o) {
+    if (o != null) {
+      properties.put(propertyName, o);
+    }
+    return properties;
+  }
 }

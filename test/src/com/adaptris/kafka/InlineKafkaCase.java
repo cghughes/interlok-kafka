@@ -32,7 +32,7 @@ import com.adaptris.core.StartedState;
 import com.adaptris.core.StoppedState;
 import com.adaptris.core.stubs.MockMessageListener;
 import com.adaptris.core.util.LifecycleHelper;
-import com.adaptris.kafka.ProducerConfigBuilder.Acks;
+import com.adaptris.kafka.ConfigBuilder.Acks;
 import com.adaptris.kafka.embedded.KafkaServerWrapper;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.TimeInterval;
@@ -80,7 +80,7 @@ public class InlineKafkaCase {
   @Test
   public void testProducerLifecycle() throws Exception {
     String text = testName.getMethodName();
-    StandardKafkaProducer p = createProducer(wrapper.getConnections(), text, text);
+    StandaloneProducer p = createProducer(wrapper.getConnections(), text, text);
     try {
       LifecycleHelper.init(p);
       LifecycleHelper.start(p);
@@ -120,7 +120,7 @@ public class InlineKafkaCase {
     StandaloneProducer sp = null;
     try {
       String text = testName.getMethodName();
-      sp = new StandaloneProducer(createProducer(wrapper.getConnections(), text, text));
+      sp = createProducer(wrapper.getConnections(), text, text);
       wrapper.createTopic(text);
       MockMessageListener mock = new MockMessageListener();
       sc = createConsumer(wrapper.getConnections(), text, mock);
@@ -143,14 +143,16 @@ public class InlineKafkaCase {
     return sc;
   }
 
-  private StandardKafkaProducer createProducer(String bootstrapServer, String recordKey, String topic) {
-    AdvancedProducerConfigBuilder builder = new AdvancedProducerConfigBuilder();
+  private StandaloneProducer createProducer(String bootstrapServer, String recordKey, String topic) {
+    AdvancedConfigBuilder builder = new AdvancedConfigBuilder();
     builder.getConfig().add(new KeyValuePair(ProducerConfig.ACKS_CONFIG, Acks.none.actualValue()));
     builder.getConfig().add(new KeyValuePair(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer));
     // Change MAX_BLOCK to stop each test from taking ~60000 which is the default block...
     // Can't figure out why KafkaProducer is why it is atm.
     builder.getConfig().add(new KeyValuePair(ProducerConfig.MAX_BLOCK_MS_CONFIG, "100"));
-    return createProducer(recordKey, new ConfiguredProduceDestination(topic), builder);
+    
+    return new StandaloneProducer(new KafkaConnection(builder),
+        new StandardKafkaProducer(recordKey, new ConfiguredProduceDestination(topic)));
   }
 
   private PollingKafkaConsumer createConsumer(String bootstrapServer, String topic) {

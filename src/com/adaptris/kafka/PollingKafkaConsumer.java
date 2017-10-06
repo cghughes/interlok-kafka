@@ -1,10 +1,8 @@
 package com.adaptris.kafka;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +14,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
 
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.ComponentProfile;
@@ -42,7 +39,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("polling-apache-kafka-consumer")
 @ComponentProfile(summary = "Receive messages via Apache Kafka", tag = "consumer,kafka", recommended = {NullConnection.class})
 @DisplayOrder(order = {"destination", "consumerConfig", "receiveTimeout", "additionalDebug"})
-public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
+public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements LoggingContext {
 
   private static final TimeInterval DEFAULT_RECV_TIMEOUT_INTERVAL = new TimeInterval(2L, TimeUnit.SECONDS);
 
@@ -82,8 +79,8 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
       }
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
-      List<String> topics = asList(getDestination().getDestination());
-      logPartitions(topics);
+      List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
+      LoggingContext.LOGGER.logPartitions(log, topics, this, consumer);
       consumer.subscribe(topics);
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
@@ -100,6 +97,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
 
   @Override
   public void close() {
+    closeConsumer();
     super.close();
   }
 
@@ -178,7 +176,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
     additionalDebug = b;
   }
 
-  boolean additionalDebug() {
+  public boolean additionalDebug() {
     return getAdditionalDebug() != null ? getAdditionalDebug().booleanValue() : false;
   }
 
@@ -191,21 +189,4 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer {
     this.receiveTimeout = rt;
   }
 
-  private static List<String> asList(String s) {
-    if (isEmpty(s)) {
-      return Collections.emptyList();
-    }
-    return Arrays.asList(s.split("\\s*,\\s*", -1));
-  }
-
-  private void logPartitions(List<String> topics) {
-    if (additionalDebug()) {
-      for (String topic : topics) {
-        for (PartitionInfo partition : consumer.partitionsFor(topic)) {
-          log.trace("Partition Info [{}]", partition);
-        }
-      }
-    }
-
-  }
 }

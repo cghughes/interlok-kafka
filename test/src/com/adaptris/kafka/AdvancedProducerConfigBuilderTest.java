@@ -12,7 +12,7 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.junit.Test;
 
 import com.adaptris.core.CoreException;
-import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
+import com.adaptris.kafka.ConfigBuilder.CompressionType;
 import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
 import com.adaptris.util.KeyValuePair;

@@ -1,12 +1,8 @@
 package com.adaptris.kafka;
 
-import java.util.Map;
-
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import com.adaptris.core.CoreException;
 import com.adaptris.security.password.Password;
 import com.adaptris.util.KeyValuePairSet;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -29,7 +25,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @config kafka-advanced-consumer-config
  */
 @XStreamAlias("kafka-advanced-consumer-config")
-public class AdvancedConsumerConfigBuilder extends AdvancedConfigBuilderImpl implements ConsumerConfigBuilder {
+public class AdvancedConsumerConfigBuilder extends AdvancedConfigBuilder implements ConsumerConfigBuilder {
 
   public AdvancedConsumerConfigBuilder() {
     super();
@@ -38,14 +34,6 @@ public class AdvancedConsumerConfigBuilder extends AdvancedConfigBuilderImpl imp
 
   public AdvancedConsumerConfigBuilder(KeyValuePairSet cfg) {
     super(cfg);
-  }
-
-  @Override
-  public Map<String, Object> build() throws CoreException {
-    Map<String, Object> result = convertAndDecode(getConfig());
-    result.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
-    result.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
-    return result;
   }
 
 }

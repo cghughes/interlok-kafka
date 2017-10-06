@@ -4,11 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adaptris.core.ConfiguredProduceDestination;
-import com.adaptris.core.NullConnection;
 import com.adaptris.core.ProducerCase;
 import com.adaptris.core.StandaloneProducer;
-import com.adaptris.kafka.ProducerConfigBuilder.Acks;
-import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
+import com.adaptris.kafka.ConfigBuilder.Acks;
+import com.adaptris.kafka.ConfigBuilder.CompressionType;
 
 public class BasicKafkaProducerExampleTest extends ProducerCase {
 
@@ -36,20 +35,12 @@ public class BasicKafkaProducerExampleTest extends ProducerCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
 
-    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder("localhost:4242");
+    SimpleConfigBuilder b = new SimpleConfigBuilder("localhost:4242");
     b.setCompressionType(CompressionType.none);
     b.setAcks(Acks.all);
-    StandardKafkaProducer producer =
-        new StandardKafkaProducer("MyProducerRecordKey", new ConfiguredProduceDestination("MyTopic"), b);
-    StandaloneProducer result = new StandaloneProducer(new NullConnection(), producer);
+    StandardKafkaProducer producer = new StandardKafkaProducer("MyProducerRecordKey", new ConfiguredProduceDestination("MyTopic"));
+    StandaloneProducer result = new StandaloneProducer(new KafkaConnection(b), producer);
 
     return result;
   }
-
-  private StandardKafkaProducer createProducer(String bootstrapServer, String topic, String recordKey) {
-    BasicProducerConfigBuilder b = new BasicProducerConfigBuilder(bootstrapServer);
-    StandardKafkaProducer producer = new StandardKafkaProducer(recordKey, new ConfiguredProduceDestination(topic), b);
-    return producer;
-  }
-
 }
