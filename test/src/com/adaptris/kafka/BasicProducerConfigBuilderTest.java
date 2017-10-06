@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.adaptris.kafka.ConfigBuilder.Acks;
 import com.adaptris.kafka.ConfigBuilder.CompressionType;
 
+@SuppressWarnings("deprecation")
 public class BasicProducerConfigBuilderTest {
 
   @Test

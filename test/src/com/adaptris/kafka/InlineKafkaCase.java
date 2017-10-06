@@ -37,6 +37,7 @@ import com.adaptris.kafka.embedded.KafkaServerWrapper;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.TimeInterval;
 
+@SuppressWarnings("deprecation")
 public class InlineKafkaCase {
 
   private static Logger log = LoggerFactory.getLogger(InlineKafkaCase.class);
