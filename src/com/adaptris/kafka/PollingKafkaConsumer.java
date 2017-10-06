@@ -1,7 +1,5 @@
 package com.adaptris.kafka;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -74,9 +71,6 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
   public void start() throws CoreException {
     try {
       Map<String, Object> props = getConsumerConfig().build();
-      if (!props.containsKey(ConsumerConfig.GROUP_ID_CONFIG)) {
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, defaultIfEmpty(getUniqueId(), GUID.safeUUID()));
-      }
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
