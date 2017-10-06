@@ -61,12 +61,23 @@ public class MockPollingConsumerTest {
   }
 
   @Test
+  public void testReceiveTimeout() {
+    PollingKafkaConsumer consumer = new PollingKafkaConsumer();
+    assertEquals(2000, consumer.receiveTimeoutMs());
+    assertNull(consumer.getReceiveTimeout());
+    TimeInterval time = new TimeInterval(2L, TimeUnit.SECONDS);
+    consumer.setReceiveTimeout(time);
+    assertEquals(2000, consumer.receiveTimeoutMs());
+    assertEquals(time, consumer.getReceiveTimeout());
+  }
+
+  @Test
   public void testLifecycle() throws Exception {
     final String text = testName.getMethodName();
     final KafkaConsumer<String, AdaptrisMessage> kafkaConsumer = Mockito.mock(KafkaConsumer.class);
     ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
     PollingKafkaConsumer consumer =
-        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder("localhost:2342")) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             return kafkaConsumer;
@@ -91,7 +102,7 @@ public class MockPollingConsumerTest {
     final KafkaConsumer<String, AdaptrisMessage> kafkaConsumer = Mockito.mock(KafkaConsumer.class);
     ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
     PollingKafkaConsumer consumer =
-        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder("localhost:2342")) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             throw new RuntimeException(text);
@@ -124,7 +135,7 @@ public class MockPollingConsumerTest {
     ConsumerRecord<String, AdaptrisMessage> record = new ConsumerRecord<String, AdaptrisMessage>(text, 0, 0, text, msg);
 
     PollingKafkaConsumer consumer =
-        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder()) {
+        new PollingKafkaConsumer(new ConfiguredConsumeDestination(text), new BasicConsumerConfigBuilder("localhost:2424")) {
           @Override
           KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
             return kafkaConsumer;
@@ -153,5 +164,44 @@ public class MockPollingConsumerTest {
     }
   }
 
+  @Test
+  public void testConsume_WithGroupId() throws Exception {
+    final String text = testName.getMethodName();
+    final KafkaConsumer<String, AdaptrisMessage> kafkaConsumer = Mockito.mock(KafkaConsumer.class);
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
+
+    ConsumerRecords<String, AdaptrisMessage> records = Mockito.mock(ConsumerRecords.class);
+    ConsumerRecord<String, AdaptrisMessage> record = new ConsumerRecord<String, AdaptrisMessage>(text, 0, 0, text, msg);
+
+    PollingKafkaConsumer consumer = new PollingKafkaConsumer(new ConfiguredConsumeDestination(text),
+        new BasicConsumerConfigBuilder("localhost:4242", testName.getMethodName())) {
+      @Override
+      KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
+        return kafkaConsumer;
+      }
+    };
+
+    consumer.setPoller(new FixedIntervalPoller(new TimeInterval(100L, TimeUnit.MILLISECONDS)));
+
+    Mockito.when(records.count()).thenReturn(1);
+    Mockito.when(records.iterator())
+        .thenReturn(new ArrayList<ConsumerRecord<String, AdaptrisMessage>>(Arrays.asList(record)).iterator());
+    Mockito.when(kafkaConsumer.poll(Mockito.anyLong())).thenReturn(records);
+    StandaloneConsumer sc = new StandaloneConsumer(consumer);
+    MockMessageListener mock = new MockMessageListener();
+    sc.registerAdaptrisMessageListener(mock);
+    try {
+      sc.prepare();
+      BaseCase.start(sc);
+      BaseCase.waitForMessages(mock, 1);
+      assertTrue(mock.getMessages().size() >= 1);
+      AdaptrisMessage consumed = mock.getMessages().get(0);
+      assertEquals(text, consumed.getContent());
+    }
+    finally {
+      LifecycleHelper.stop(sc);
+      LifecycleHelper.close(sc);
+    }
+  }
 
 }

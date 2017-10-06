@@ -26,7 +26,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("kafka-simple-config-builder")
 @DisplayOrder(order = {"bootstrapServers", "groupId", "acks", "retries", "compressionType", "bufferMemory"})
-public class SimpleConfigBuilder implements ConfigBuilder {
+public class SimpleConfigBuilder extends ConfigBuilderImpl {
 
   private static final long DEFAULT_BUFFER_MEM = 33554432L;
   private static final int DEFAULT_RETRIES = 0;
@@ -70,6 +70,8 @@ public class SimpleConfigBuilder implements ConfigBuilder {
       addEntry(props, ProducerConfig.BUFFER_MEMORY_CONFIG, getBufferMemory());
       addEntry(props, ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
       addEntry(props, ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+      addEntry(props, ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
+      addEntry(props, ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
     }
     catch (IllegalArgumentException e) {
       throw ExceptionHelper.wrapCoreException(e);
@@ -101,10 +103,6 @@ public class SimpleConfigBuilder implements ConfigBuilder {
 
   public Long getBufferMemory() {
     return bufferMemory;
-  }
-
-  long bufferMemory() {
-    return getBufferMemory() != null ? getBufferMemory().longValue() : DEFAULT_BUFFER_MEM;
   }
 
   /**
@@ -203,10 +201,4 @@ public class SimpleConfigBuilder implements ConfigBuilder {
     this.groupId = groupId;
   }
 
-  private static Map<String, Object> addEntry(Map<String, Object> properties, String propertyName, Object o) {
-    if (o != null) {
-      properties.put(propertyName, o);
-    }
-    return properties;
-  }
 }

@@ -122,8 +122,6 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
   protected int processMessages() {
     int proc = 0;
     try {
-      if (consumer == null)
-        return 0;
       log.trace("Going to Poll with timeout {}", receiveTimeoutMs());
       ConsumerRecords<String, AdaptrisMessage> records = consumer.poll(receiveTimeoutMs());
       for (ConsumerRecord<String, AdaptrisMessage> record : records) {
