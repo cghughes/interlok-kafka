@@ -70,7 +70,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
   @Override
   public void start() throws CoreException {
     try {
-      Map<String, Object> props = getConsumerConfig().build();
+      Map<String, Object> props = StandardKafkaConsumer.reconfigure(getConsumerConfig().build());
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));

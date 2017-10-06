@@ -28,7 +28,10 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * <p>
  * Exposes all possible settings via a {@link KeyValuePairSet}. No checking of values is performed other than for the various SSL
  * passwords (such as {@value SslConfigs#SSL_KEY_PASSWORD_CONFIG}) which will be decoded using {@link Password#decode(String)}
- * appropriately.
+ * appropriately. Because no checking is done, it will be possible to get some warnings about unused configuration (e.g. you have
+ * configured {@code linger.ms} on a connection that is used for both producers and consumer) may be logged. These can be safely
+ * ignored or filtered from logging (filter the classes {@code org.apache.kafka.clients.consumer.ConsumerConfig} and {code
+ * org.apache.kafka.clients.producer.ProducerConfig}
  * </p>
  * <p>
  * Regardless of what is configured; the {@code key.deserializer} property is fixed to be a {@link StringDeserializer}; and the

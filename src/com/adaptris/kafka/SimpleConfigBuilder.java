@@ -20,6 +20,15 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 /**
  * Simple implementation of {@link ConfigBuilder} for use with {@link KafkaConnection}.
  * 
+ * <p>
+ * The simple builder contains configuration marked as <strong>high</strong> importance in both
+ * <a href="http://kafka.apache.org/documentation.html#producerconfigs">the Apache Kafka Producer Config Documentation</a> and
+ * <a href="http://kafka.apache.org/documentation.html#newconsumerconfigs">the Apache Kafka Consumer Config Documentation</a>.
+ * Because it caters for both scenarios it will be possible to get some warnings about unused configuration (e.g. you have
+ * configured {@code acks} on a connection that is used for both producers and consumer). These can be safely ignored or filtered
+ * from the logging (filter the classes {@code org.apache.kafka.clients.consumer.ConsumerConfig} and {code
+ * org.apache.kafka.clients.producer.ProducerConfig}
+ * </p>
  * 
  * @author lchan
  * @config kafka-simple-config-builder
@@ -27,11 +36,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("kafka-simple-config-builder")
 @DisplayOrder(order = {"bootstrapServers", "groupId", "acks", "retries", "compressionType", "bufferMemory"})
 public class SimpleConfigBuilder extends ConfigBuilderImpl {
-
-  private static final long DEFAULT_BUFFER_MEM = 33554432L;
-  private static final int DEFAULT_RETRIES = 0;
-  private static final CompressionType DEFAULT_COMPRESSION_TYPE = ConfigBuilder.CompressionType.none;
-  private static final Acks DEFAULT_ACKS = ConfigBuilder.Acks.all;
 
   @NotBlank
   private String bootstrapServers;
@@ -63,15 +67,18 @@ public class SimpleConfigBuilder extends ConfigBuilderImpl {
     try {
       Args.notBlank(getBootstrapServers(), "bootstrapServers");
       addEntry(props, CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+
       addEntry(props, ConsumerConfig.GROUP_ID_CONFIG, getGroupId());
+      addEntry(props, ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
+      addEntry(props, ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+
       addEntry(props, ProducerConfig.ACKS_CONFIG, Acks.toConfigValue(getAcks()));
       addEntry(props, ProducerConfig.COMPRESSION_TYPE_CONFIG, CompressionType.toConfigValue(getCompressionType()));
       addEntry(props, ProducerConfig.RETRIES_CONFIG, getRetries());
       addEntry(props, ProducerConfig.BUFFER_MEMORY_CONFIG, getBufferMemory());
       addEntry(props, ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
       addEntry(props, ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
-      addEntry(props, ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
-      addEntry(props, ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+
     }
     catch (IllegalArgumentException e) {
       throw ExceptionHelper.wrapCoreException(e);

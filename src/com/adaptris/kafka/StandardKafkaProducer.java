@@ -2,6 +2,7 @@ package com.adaptris.kafka;
 
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -75,7 +76,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   @Override
   public void start() throws CoreException {
     try {
-      producer = createProducer(buildConfig());
+      producer = createProducer(reconfigure(buildConfig()));
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
       throw ExceptionHelper.wrapCoreException(e);
@@ -111,7 +112,16 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     if (configFromConnection) {
       return retrieveConnection(KafkaConnection.class).buildConfig();
     }
+    log.warn("producer-config is deprecated); use a {} instead", KafkaConnection.class.getSimpleName());
     return getProducerConfig().build();
+  }
+
+  // Just remove the obvious consumerconfig keys.
+  protected static Map<String, Object> reconfigure(Map<String, Object> config) {
+    config.remove(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG);
+    config.remove(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG);
+    config.remove(ConsumerConfig.GROUP_ID_CONFIG);
+    return config;
   }
 
   KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {

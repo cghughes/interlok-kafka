@@ -11,14 +11,13 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * Implementation of {@link ConsumerConfigBuilder} that exposes all configuration.
  * 
  * <p>
- * Exposes all possible settings via a {@link KeyValuePairSet}. No checking of values is performed other than for the various
- * SSL passwords (such as {@value SslConfigs#SSL_KEY_PASSWORD_CONFIG}) which will be decoded using
- * {@link Password#decode(String)} appropriately.
+ * Exposes all possible settings via a {@link KeyValuePairSet}. No checking of values is performed other than for the various SSL
+ * passwords (such as {@value SslConfigs#SSL_KEY_PASSWORD_CONFIG}) which will be decoded using {@link Password#decode(String)}
+ * appropriately.
  * </p>
  * <p>
- * Regardless of what is configured; the {@code key.deserializer} property is
- * fixed to be a {@link StringDeserializer}; and the {@code value.deserializer} property is always an
- * {@link AdaptrisMessageDeserializer}.
+ * Regardless of what is configured; the {@code key.deserializer} property is fixed to be a {@link StringDeserializer}; and the
+ * {@code value.deserializer} property is always an {@link AdaptrisMessageDeserializer}.
  * </p>
  * 
  * @author lchan

@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.InvalidOffsetException;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.errors.AuthorizationException;
 import org.apache.kafka.common.errors.WakeupException;
 
@@ -67,7 +68,7 @@ public class StandardKafkaConsumer extends AdaptrisMessageConsumerImp implements
   @Override
   public void start() throws CoreException {
     try {
-      Map<String, Object> props = retrieveConnection(KafkaConnection.class).buildConfig();
+      Map<String, Object> props = reconfigure(retrieveConnection(KafkaConnection.class).buildConfig());
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
@@ -124,6 +125,17 @@ public class StandardKafkaConsumer extends AdaptrisMessageConsumerImp implements
   @Override
   public boolean additionalDebug() {
     return getAdditionalDebug() != null ? getAdditionalDebug().booleanValue() : false;
+  }
+
+  // Just remove the obvious ProducerConfig keys.
+  protected static Map<String, Object> reconfigure(Map<String, Object> config) {
+    config.remove(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG);
+    config.remove(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG);
+    config.remove(ProducerConfig.ACKS_CONFIG);
+    config.remove(ProducerConfig.BUFFER_MEMORY_CONFIG);
+    config.remove(ProducerConfig.COMPRESSION_TYPE_CONFIG);
+    config.remove(ProducerConfig.RETRIES_CONFIG);
+    return config;
   }
 
   KafkaConsumer<String, AdaptrisMessage> createConsumer(Map<String, Object> config) {
