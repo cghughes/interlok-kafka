@@ -22,9 +22,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * @author lchan
  * @config kafka-advanced-producer-config
- * @deprecated since 3.7.0; you should use a {@link KafkaConnection} with {@link StandardKafkaProducer}
  */
-@Deprecated
 @XStreamAlias("kafka-advanced-producer-config")
 public class AdvancedProducerConfigBuilder extends AdvancedConfigBuilder implements ProducerConfigBuilder {
 

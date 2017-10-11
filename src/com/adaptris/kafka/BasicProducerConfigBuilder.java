@@ -26,11 +26,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * @author lchan
  * @config kafka-basic-producer-config
- * @deprecated since 3.7.0; you should use a {@link KafkaConnection} with {@link StandardKafkaProducer}
  */
 @XStreamAlias("kafka-basic-producer-config")
 @DisplayOrder(order = {"bootstrapServers", "acks", "retries", "compressionType", "bufferMemory"})
-@Deprecated
 public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
   static final long DEFAULT_BUFFER_MEM = 33554432L;
