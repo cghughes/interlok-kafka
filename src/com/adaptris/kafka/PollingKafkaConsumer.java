@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
 
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.ComponentProfile;
@@ -74,7 +75,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
-      LoggingContext.LOGGER.logPartitions(log, topics, this, consumer);
+      LoggingContext.LOGGER.logPartitions(this, topics, consumer);
       consumer.subscribe(topics);
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
@@ -168,8 +169,14 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
     additionalDebug = b;
   }
 
+  @Override
   public boolean additionalDebug() {
     return getAdditionalDebug() != null ? getAdditionalDebug().booleanValue() : false;
+  }
+
+  @Override
+  public Logger logger() {
+    return log;
   }
 
   /**

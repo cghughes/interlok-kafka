@@ -11,19 +11,20 @@ import com.adaptris.core.AdaptrisMessage;
 public interface LoggingContext {
   public static final PartitionLogger LOGGER = new PartitionLogger();
 
-  
   boolean additionalDebug();
   
+  Logger logger();
+
 }
 
 class PartitionLogger {
 
-  void logPartitions(Logger log, List<String> topics, LoggingContext ctx,
+  void logPartitions(LoggingContext ctx, List<String> topics, 
                      KafkaConsumer<String, AdaptrisMessage> c) {
     if (ctx.additionalDebug()) {
       for (String t : topics) {
         for (PartitionInfo partition : c.partitionsFor(t)) {
-          log.trace("Partition Info [{}]", partition);
+          ctx.logger().trace("Partition Info [{}]", partition);
         }
       }
     }
