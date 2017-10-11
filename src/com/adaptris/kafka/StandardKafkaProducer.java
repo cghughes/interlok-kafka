@@ -33,7 +33,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("standard-apache-kafka-producer")
 @ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka", recommended = {KafkaConnection.class})
-@DisplayOrder(order = {"recordKey", "producerConfig"})
+@DisplayOrder(order = {"recordKey"})
 public class StandardKafkaProducer extends ProduceOnlyProducerImp {
 
   @NotBlank
