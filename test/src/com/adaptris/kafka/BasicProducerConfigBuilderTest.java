@@ -11,8 +11,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 
-import com.adaptris.kafka.ProducerConfigBuilder.Acks;
-import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
+import com.adaptris.kafka.ConfigBuilder.Acks;
+import com.adaptris.kafka.ConfigBuilder.CompressionType;
 
 public class BasicProducerConfigBuilderTest {
 

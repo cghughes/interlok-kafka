@@ -2,19 +2,19 @@ package com.adaptris.kafka;
 
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
+import com.adaptris.annotation.InputFieldHint;
+import com.adaptris.core.AdaptrisConnection;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
-import com.adaptris.core.NullConnection;
 import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
@@ -32,49 +32,56 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  */
 @XStreamAlias("standard-apache-kafka-producer")
-@ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka", recommended = {NullConnection.class})
-@DisplayOrder(order = {"recordKey", "producerConfig"})
+@ComponentProfile(summary = "Deliver messages via Apache Kafka", tag = "producer,kafka", recommended = {KafkaConnection.class})
+@DisplayOrder(order = {"recordKey"})
 public class StandardKafkaProducer extends ProduceOnlyProducerImp {
 
   @NotBlank
+  @InputFieldHint(expression = true)
   private String recordKey;
-  @NotNull
-  @Valid
+  @Deprecated
+  @AdvancedConfig
   private ProducerConfigBuilder producerConfig;
 
   private transient Producer<String, AdaptrisMessage> producer;
+  private transient boolean configFromConnection;
 
   public StandardKafkaProducer() {
-    setProducerConfig(new BasicProducerConfigBuilder());
   }
 
-  public StandardKafkaProducer(String recordKey, ProduceDestination d, ProducerConfigBuilder b) {
+  public StandardKafkaProducer(String recordKey, ProduceDestination d) {
+    setRecordKey(recordKey);
+    setDestination(d);
+  }
+
+  @Deprecated
+  StandardKafkaProducer(String recordKey, ProduceDestination d, ProducerConfigBuilder b) {
+    this();
     setRecordKey(recordKey);
     setDestination(d);
     setProducerConfig(b);
   }
 
-
-
   @Override
   public void init() throws CoreException {
+    try {
+      Args.notBlank(getRecordKey(), "record-key");
+    }
+    catch (IllegalArgumentException e) {
+      throw ExceptionHelper.wrapCoreException(e);
+    }
     producer = null;
   }
 
   @Override
   public void start() throws CoreException {
     try {
-      producer = createProducer(getProducerConfig().build());
+      producer = createProducer(reconfigure(buildConfig()));
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
       throw ExceptionHelper.wrapCoreException(e);
     }
   }
-
-  KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
-    return new KafkaProducer<String, AdaptrisMessage>(config);
-  }
-
 
   @Override
   public void stop() {
@@ -94,18 +101,49 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {
     try {
       String topic = destination.getDestination(msg);
-      producer.send(new ProducerRecord<String, AdaptrisMessage>(topic, getRecordKey(), msg));
+      String key = msg.resolve(getRecordKey());
+      producer.send(new ProducerRecord<String, AdaptrisMessage>(topic, key, msg));
     } catch (Exception e) {
       throw ExceptionHelper.wrapProduceException(e);
     }
   }
 
+  private Map<String, Object> buildConfig() throws CoreException {
+    if (configFromConnection) {
+      return retrieveConnection(KafkaConnection.class).buildConfig();
+    }
+    log.warn("producer-config is deprecated); use a {} instead", KafkaConnection.class.getSimpleName());
+    return getProducerConfig().build();
+  }
+
+  // Just remove the obvious consumerconfig keys.
+  protected static Map<String, Object> reconfigure(Map<String, Object> config) {
+    config.remove(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG);
+    config.remove(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG);
+    config.remove(ConsumerConfig.GROUP_ID_CONFIG);
+    return config;
+  }
+
+  KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+    return new KafkaProducer<String, AdaptrisMessage>(config);
+  }
+
+  /**
+   * 
+   * @deprecated since 3.7.0 use a {@link KafkaConnection} instead.
+   */
+  @Deprecated
   public ProducerConfigBuilder getProducerConfig() {
     return producerConfig;
   }
 
+  /**
+   * 
+   * @deprecated since 3.7.0 use a {@link KafkaConnection} instead.
+   */
+  @Deprecated
   public void setProducerConfig(ProducerConfigBuilder pc) {
-    this.producerConfig = Args.notNull(pc, "producer-config");
+    this.producerConfig = pc;
   }
 
   public String getRecordKey() {
@@ -121,4 +159,12 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     this.recordKey = Args.notNull(k, "key");
   }
 
+  @Override
+  public void registerConnection(AdaptrisConnection conn) {
+    super.registerConnection(conn);
+    if (conn instanceof KafkaConnection) {
+      configFromConnection = true;
+    }
+
+  }
 }

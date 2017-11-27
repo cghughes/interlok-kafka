@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
+import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -26,7 +27,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("kafka-basic-consumer-config")
 @DisplayOrder(order = {"bootstrapServers", "groupId"})
-public class BasicConsumerConfigBuilder implements ConsumerConfigBuilder {
+public class BasicConsumerConfigBuilder extends ConfigBuilderImpl implements ConsumerConfigBuilder
+{
 
   @NotBlank
   private String bootstrapServers;
@@ -42,14 +44,25 @@ public class BasicConsumerConfigBuilder implements ConsumerConfigBuilder {
     setBootstrapServers(bootstrapServers);
   }
 
+  public BasicConsumerConfigBuilder(String bootstrapServers, String groupId) {
+    this();
+    setBootstrapServers(bootstrapServers);
+    setGroupId(groupId);
+  }
 
   @Override
   public Map<String, Object> build() throws CoreException {
     Map<String, Object> props = new HashMap<>();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId());
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+    try {
+      Args.notBlank(getBootstrapServers(), "bootstrapServers");
+      props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+      addEntry(props, ConsumerConfig.GROUP_ID_CONFIG, getGroupId());
+      props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
+      props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+    }
+    catch (IllegalArgumentException e) {
+      throw ExceptionHelper.wrapCoreException(e);
+    }
     return props;
   }
 

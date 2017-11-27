@@ -7,12 +7,15 @@ import static org.junit.Assert.fail;
 
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 
 import com.adaptris.core.CoreException;
-import com.adaptris.kafka.ProducerConfigBuilder.CompressionType;
+import com.adaptris.kafka.ConfigBuilder.CompressionType;
 import com.adaptris.security.exc.PasswordException;
 import com.adaptris.security.password.Password;
 import com.adaptris.util.KeyValuePair;
@@ -54,6 +57,12 @@ public class AdvancedProducerConfigBuilderTest {
     assertNull(p.get(ProducerConfig.ACKS_CONFIG));
     assertEquals("10", p.get(ProducerConfig.LINGER_MS_CONFIG));
     assertEquals("MyPassword", p.get(SslConfigs.SSL_KEY_PASSWORD_CONFIG));
+
+    assertEquals(StringDeserializer.class.getName(), p.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG));
+    assertEquals(AdaptrisMessageDeserializer.class.getName(), p.get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
+    assertEquals(StringSerializer.class.getName(), p.get(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
+    assertEquals(AdaptrisMessageSerializer.class.getName(), p.get(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
+
   }
 
   @Test
