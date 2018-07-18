@@ -85,7 +85,7 @@ class EmbeddedKafkaCluster {
 
 
   private KafkaServer startBroker(Properties props) {
-    KafkaServer server = new KafkaServer(new KafkaConfig(props), new SystemTime(), null);
+    KafkaServer server = new KafkaServer(new KafkaConfig(props), null, null, null);
     server.startup();
     return server;
   }
