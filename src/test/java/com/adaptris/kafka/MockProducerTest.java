@@ -50,7 +50,7 @@ public class MockProducerTest {
     final KafkaProducer<String, AdaptrisMessage> kafkaProducer = Mockito.mock(KafkaProducer.class);
     StandardKafkaProducer producer = new StandardKafkaProducer() {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         return kafkaProducer;
       }
     };
@@ -72,7 +72,7 @@ public class MockProducerTest {
     final KafkaProducer<String, AdaptrisMessage> kafkaProducer = Mockito.mock(KafkaProducer.class);
     StandardKafkaProducer producer = new StandardKafkaProducer() {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         return kafkaProducer;
       }
     };
@@ -92,7 +92,7 @@ public class MockProducerTest {
     final KafkaProducer<String, AdaptrisMessage> kafkaProducer = Mockito.mock(KafkaProducer.class);
     StandardKafkaProducer producer = new StandardKafkaProducer() {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         return kafkaProducer;
       }
     };
@@ -113,7 +113,7 @@ public class MockProducerTest {
     StandardKafkaProducer producer = new StandardKafkaProducer(text, new ConfiguredProduceDestination(text),
         new BasicProducerConfigBuilder()) {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         throw new RuntimeException(text);
       }
     };
@@ -136,7 +136,7 @@ public class MockProducerTest {
     StandaloneProducer producer = new StandaloneProducer(new KafkaConnection(new SimpleConfigBuilder("localhost:5672")),
         new StandardKafkaProducer(text, new ConfiguredProduceDestination(text)) {
           @Override
-          KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+          protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
             throw new RuntimeException(text);
           }
         });
@@ -159,7 +159,7 @@ public class MockProducerTest {
     StandardKafkaProducer producer = new StandardKafkaProducer(text, new ConfiguredProduceDestination(text),
         new BasicProducerConfigBuilder()) {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         return kafkaProducer;
       }
     };
@@ -183,7 +183,7 @@ public class MockProducerTest {
     StandaloneProducer producer = new StandaloneProducer(new KafkaConnection(new SimpleConfigBuilder("localhost:1234")),
         new StandardKafkaProducer(text, new ConfiguredProduceDestination(text)) {
           @Override
-          KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+          protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
             return kafkaProducer;
           }
         });
@@ -206,7 +206,7 @@ public class MockProducerTest {
     StandardKafkaProducer producer = new StandardKafkaProducer(text, new ConfiguredProduceDestination(text),
         new BasicProducerConfigBuilder()) {
       @Override
-      KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+      protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
         return kafkaProducer;
       }
     };
@@ -222,10 +222,40 @@ public class MockProducerTest {
     StandaloneProducer producer = new StandaloneProducer(new KafkaConnection(new SimpleConfigBuilder("localhost:12345")),
         new StandardKafkaProducer(text, new ConfiguredProduceDestination(text)) {
           @Override
-          KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+          protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
             return kafkaProducer;
           }
         });
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
+    ServiceCase.execute(producer, msg);
+  }
+
+  @Test
+  public void testProduce_PartitionedProducer_InvalidPartition() throws Exception {
+    String text = testName.getMethodName();
+    final KafkaProducer<String, AdaptrisMessage> kafkaProducer = Mockito.mock(KafkaProducer.class);
+    StandaloneProducer producer = new StandaloneProducer(new KafkaConnection(new SimpleConfigBuilder("localhost:12345")),
+        new PartitionedKafkaProducer(text, new ConfiguredProduceDestination(text)) {
+          @Override
+          protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+            return kafkaProducer;
+          }
+        }.withPartition("XXX"));
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
+    ServiceCase.execute(producer, msg);
+  }
+
+  @Test
+  public void testProduce_PartitionedProducer_WithPartition() throws Exception {
+    String text = testName.getMethodName();
+    final KafkaProducer<String, AdaptrisMessage> kafkaProducer = Mockito.mock(KafkaProducer.class);
+    StandaloneProducer producer = new StandaloneProducer(new KafkaConnection(new SimpleConfigBuilder("localhost:12345")),
+        new PartitionedKafkaProducer(text, new ConfiguredProduceDestination(text)) {
+          @Override
+          protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+            return kafkaProducer;
+          }
+        }.withPartition("0"));
     AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(text);
     ServiceCase.execute(producer, msg);
   }
