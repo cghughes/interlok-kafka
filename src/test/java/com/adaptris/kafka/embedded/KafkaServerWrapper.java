@@ -38,7 +38,7 @@ public class KafkaServerWrapper {
     ZkConnection zkConnection = new ZkConnection(zookeeper.getConnection(), DEFAULT_TIMEOUT);
     ZkClient zkClient = new ZkClient(zkConnection, DEFAULT_TIMEOUT);
     ZkUtils zkUtils = new ZkUtils(zkClient, zkConnection, false);
-    AdminUtils.createTopic(zkUtils, topic, DEFAULT_PARTITIONS, DEFAULT_REPL_FACTOR, new Properties());
+    AdminUtils.createTopic(zkUtils, topic, DEFAULT_PARTITIONS, DEFAULT_REPL_FACTOR, new Properties(), null);
     zkUtils.close();
     zkClient.close();
     zkConnection.close();

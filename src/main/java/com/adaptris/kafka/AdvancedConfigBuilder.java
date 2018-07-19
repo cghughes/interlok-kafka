@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.core.CoreException;
@@ -34,7 +33,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * org.apache.kafka.clients.producer.ProducerConfig}
  * </p>
  * <p>
- * Regardless of what is configured; the {@code key.deserializer} property is fixed to be a {@link StringDeserializer}; and the
+ * Regardless of what is configured; the {@code key.deserializer} property is fixed to be a {@code StringDeserializer}; and the
  * {@code value.deserializer} property is always an {@link AdaptrisMessageDeserializer}.
  * </p>
  * 

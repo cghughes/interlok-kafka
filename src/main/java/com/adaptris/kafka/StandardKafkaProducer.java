@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -43,8 +42,8 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
   @AdvancedConfig
   private ProducerConfigBuilder producerConfig;
 
-  private transient Producer<String, AdaptrisMessage> producer;
-  private transient boolean configFromConnection;
+  protected transient KafkaProducer<String, AdaptrisMessage> producer;
+  protected transient boolean configFromConnection;
 
   public StandardKafkaProducer() {
   }
@@ -102,7 +101,7 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     try {
       String topic = destination.getDestination(msg);
       String key = msg.resolve(getRecordKey());
-      producer.send(new ProducerRecord<String, AdaptrisMessage>(topic, key, msg));
+      producer.send(createProducerRecord(topic, key, msg));
     } catch (Exception e) {
       throw ExceptionHelper.wrapProduceException(e);
     }
@@ -124,8 +123,13 @@ public class StandardKafkaProducer extends ProduceOnlyProducerImp {
     return config;
   }
 
-  KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
+  protected KafkaProducer<String, AdaptrisMessage> createProducer(Map<String, Object> config) {
     return new KafkaProducer<String, AdaptrisMessage>(config);
+  }
+
+  protected ProducerRecord<String, AdaptrisMessage> createProducerRecord(String topic, String key, AdaptrisMessage msg) {
+    log.trace("Sending message [{}] to topic [{}] with key [{}]", msg.getUniqueId(), topic, key);
+    return new ProducerRecord<String, AdaptrisMessage>(topic, key, msg);
   }
 
   /**
