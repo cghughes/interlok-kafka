@@ -182,7 +182,7 @@ public class SimpleConfigBuilder extends ConfigBuilderImpl {
    * complete
    * </p>
    * 
-   * @param a the number of acks; default is {@link Acks#all} if not specified for the strongest available guarantee.
+   * @param a the number of acks; default is {@code Acks#all} if not specified for the strongest available guarantee.
    */
   public void setAcks(Acks a) {
     this.acks = a;

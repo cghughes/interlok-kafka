@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.adaptris.annotation.AdvancedConfig;
@@ -21,7 +20,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * <p>
  * Only "high" importance properties from <a href="http://kafka.apache.org/documentation.html#producerconfigs">the Apache Kafka
  * Producer Config Documentation</a> are exposed; all other properties are left as default. The {@code key.serializer} property is
- * fixed to be a {@link StringSerializer}; and the {@code value.serializer} property is always an {@link AdaptrisMessageSerializer}.
+ * fixed to be a {@code StringSerializer}; and the {@code value.serializer} property is always an {@link AdaptrisMessageSerializer}.
  * </p>
  * 
  * @author lchan
@@ -134,7 +133,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * ratio (more batching means better compression).
    * </p>
    * 
-   * @param t the compression type; default is {@link CompressionType#none} if not specified.
+   * @param t the compression type; default is {@code CompressionType#none} if not specified.
    */
   public void setCompressionType(CompressionType t) {
     this.compressionType = t;
@@ -182,7 +181,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * complete
    * </p>
    * 
-   * @param a the number of acks; default is {@link Acks#all} if not specified for the strongest available guarantee.
+   * @param a the number of acks; default is {@code Acks#all} if not specified for the strongest available guarantee.
    */
   public void setAcks(Acks a) {
     this.acks = a;
