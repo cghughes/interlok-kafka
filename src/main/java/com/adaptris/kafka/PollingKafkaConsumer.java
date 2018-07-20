@@ -23,7 +23,6 @@ import com.adaptris.core.CoreException;
 import com.adaptris.core.NullConnection;
 import com.adaptris.core.util.Args;
 import com.adaptris.core.util.ExceptionHelper;
-import com.adaptris.util.GuidGenerator;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -51,7 +50,6 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
   private Boolean additionalDebug;
 
   private transient KafkaConsumer<String, AdaptrisMessage> consumer;
-  private transient static GuidGenerator GUID = new GuidGenerator();
 
   public PollingKafkaConsumer() {
     setConsumerConfig(new BasicConsumerConfigBuilder());

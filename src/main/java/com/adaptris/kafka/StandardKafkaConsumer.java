@@ -21,6 +21,8 @@ import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageConsumerImp;
 import com.adaptris.core.ConsumeDestination;
 import com.adaptris.core.CoreException;
+import com.adaptris.core.InitialisedState;
+import com.adaptris.core.StartedState;
 import com.adaptris.core.util.Args;
 import com.adaptris.core.util.ExceptionHelper;
 import com.adaptris.core.util.ManagedThreadFactory;
@@ -139,6 +141,12 @@ public class StandardKafkaConsumer extends AdaptrisMessageConsumerImp implements
     return new KafkaConsumer<String, AdaptrisMessage>(config);
   }
 
+  private boolean probablyStarted() {
+    // It's a bit of a fudge as we'll be in a timing issue, because we aren't *yet* started
+    // because the thread is forked at the end of the start() method.
+    return retrieveComponentState().equals(StartedState.getInstance())
+        || retrieveComponentState().equals(InitialisedState.getInstance());
+  }
 
   private class MessageConsumerRunnable implements Runnable {
     public void run() {
@@ -155,7 +163,7 @@ public class StandardKafkaConsumer extends AdaptrisMessageConsumerImp implements
         } catch (Exception e) {
 
         }
-      } while (true);
+      } while (probablyStarted());
     }
   }
 }
