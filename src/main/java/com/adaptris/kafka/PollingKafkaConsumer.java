@@ -22,6 +22,7 @@ import com.adaptris.core.ConsumeDestination;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.NullConnection;
 import com.adaptris.core.util.Args;
+import com.adaptris.core.util.ExceptionHelper;
 import com.adaptris.util.GuidGenerator;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -71,7 +72,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
   @Override
   public void start() throws CoreException {
     try {
-      Map<String, Object> props = StandardKafkaConsumer.reconfigure(getConsumerConfig().build());
+      Map<String, Object> props = getConsumerConfig().build();
       props.put(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG, getMessageFactory());
       consumer = createConsumer(props);
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
@@ -79,7 +80,7 @@ public class PollingKafkaConsumer extends AdaptrisPollingConsumer implements Log
       consumer.subscribe(topics);
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
-      throw new CoreException(e);
+      throw ExceptionHelper.wrapCoreException(e);
     }
     super.start();
   }

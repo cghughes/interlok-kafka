@@ -22,8 +22,10 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * @author lchan
  * @config kafka-advanced-producer-config
+ * @deprecated since 3.8.0 when using a {@link KafkaConnection}; has no meaning.
  */
 @XStreamAlias("kafka-advanced-producer-config")
+@Deprecated
 public class AdvancedProducerConfigBuilder extends AdvancedConfigBuilder implements ProducerConfigBuilder {
 
 
@@ -34,4 +36,5 @@ public class AdvancedProducerConfigBuilder extends AdvancedConfigBuilder impleme
   public AdvancedProducerConfigBuilder(KeyValuePairSet cfg) {
     super(cfg);
   }
+
 }

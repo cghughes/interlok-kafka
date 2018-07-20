@@ -27,8 +27,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("kafka-basic-consumer-config")
 @DisplayOrder(order = {"bootstrapServers", "groupId"})
-public class BasicConsumerConfigBuilder extends ConfigBuilderImpl implements ConsumerConfigBuilder
-{
+public class BasicConsumerConfigBuilder extends ConfigBuilderImpl implements ConsumerConfigBuilder {
 
   @NotBlank
   private String bootstrapServers;
@@ -51,7 +50,7 @@ public class BasicConsumerConfigBuilder extends ConfigBuilderImpl implements Con
   }
 
   @Override
-  public Map<String, Object> build() throws CoreException {
+  public Map<String, Object> build(KeyFilter filter) throws CoreException {
     Map<String, Object> props = new HashMap<>();
     try {
       Args.notBlank(getBootstrapServers(), "bootstrapServers");
@@ -59,6 +58,8 @@ public class BasicConsumerConfigBuilder extends ConfigBuilderImpl implements Con
       addEntry(props, ConsumerConfig.GROUP_ID_CONFIG, getGroupId());
       props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
       props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+      log.trace("Keeping Config Keys : {}", filter.retainKeys());
+      props.keySet().retainAll(filter.retainKeys());
     }
     catch (IllegalArgumentException e) {
       throw ExceptionHelper.wrapCoreException(e);

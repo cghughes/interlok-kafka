@@ -50,7 +50,7 @@ public class KafkaConnection extends NoOpConnection {
     this.configBuilder = Args.notNull(configBuilder, "configBuilder");
   }
 
-  public Map<String, Object> buildConfig() throws CoreException {
-    return getConfigBuilder().build();
+  public Map<String, Object> buildConfig(ConfigBuilder.KeyFilter filter) throws CoreException {
+    return getConfigBuilder().build(filter);
   }
 }

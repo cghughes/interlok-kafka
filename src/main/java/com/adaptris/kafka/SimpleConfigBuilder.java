@@ -15,6 +15,7 @@ import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
 import com.adaptris.core.util.ExceptionHelper;
+import com.adaptris.kafka.ConfigDefinition.FilterKeys;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -63,6 +64,11 @@ public class SimpleConfigBuilder extends ConfigBuilderImpl {
 
   @Override
   public Map<String, Object> build() throws CoreException {
+    return build(FilterKeys.ProducerOrConsumer);
+  }
+
+  @Override
+  public Map<String, Object> build(KeyFilter filter) throws CoreException {
     Map<String, Object> props = new HashMap<>();
     try {
       Args.notBlank(getBootstrapServers(), "bootstrapServers");
@@ -78,14 +84,13 @@ public class SimpleConfigBuilder extends ConfigBuilderImpl {
       addEntry(props, ProducerConfig.BUFFER_MEMORY_CONFIG, getBufferMemory());
       addEntry(props, ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
       addEntry(props, ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
-
-    }
-    catch (IllegalArgumentException e) {
+      log.trace("Keeping Config Keys : {}", filter.retainKeys());
+      props.keySet().retainAll(filter.retainKeys());
+    } catch (IllegalArgumentException e) {
       throw ExceptionHelper.wrapCoreException(e);
     }
     return props;
   }
-
 
   public String getBootstrapServers() {
     return bootstrapServers;

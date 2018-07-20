@@ -11,6 +11,9 @@ import com.adaptris.core.AdaptrisMessageFactory;
 
 /**
  * Deserializer implementation for {@link AdaptrisMessage} objects.
+ * <p>
+ * Note that this simply preserves the byte[] payload, and no metadata for interoperability with other consumers and producers.
+ * </p>
  * 
  * @author lchan
  *
@@ -30,7 +33,6 @@ public class AdaptrisMessageDeserializer implements Deserializer<AdaptrisMessage
 
   @Override
   public void configure(Map<String, ?> configs, boolean isKey) {
-    String propertyName = isKey ? "key.deserializer.encoding" : "value.deserializer.encoding";
     factory = defaultIfNull((AdaptrisMessageFactory) configs.get(ConfigBuilder.KEY_DESERIALIZER_FACTORY_CONFIG));
   }
 

@@ -21,6 +21,7 @@ import com.adaptris.security.password.Password;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.KeyValuePairSet;
 
+@SuppressWarnings("deprecation")
 public class AdvancedProducerConfigBuilderTest {
 
   @Test

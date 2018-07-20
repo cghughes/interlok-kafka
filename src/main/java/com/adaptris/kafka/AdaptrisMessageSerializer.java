@@ -8,6 +8,9 @@ import com.adaptris.core.AdaptrisMessage;
 
 /**
  * Serializer implementation for {@link AdaptrisMessage} objects.
+ * <p>
+ * Note that this simply preserves the byte[] payload, and no metadata for interoperability with other consumers and producers.
+ * </p>
  * 
  * @author lchan
  *

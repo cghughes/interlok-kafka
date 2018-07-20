@@ -12,6 +12,7 @@ import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.Args;
+import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -25,9 +26,11 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * @author lchan
  * @config kafka-basic-producer-config
+ * @deprecated since 3.8.0 when using a {@link KafkaConnection}; has no meaning.
  */
 @XStreamAlias("kafka-basic-producer-config")
 @DisplayOrder(order = {"bootstrapServers", "acks", "retries", "compressionType", "bufferMemory"})
+@Deprecated
 public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
 
   static final long DEFAULT_BUFFER_MEM = 33554432L;
@@ -57,17 +60,23 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
     setBootstrapServers(bootstrapServers);
   }
 
-
   @Override
-  public Map<String, Object> build() throws CoreException {
+  public Map<String, Object> build(KeyFilter filter) throws CoreException {
     Map<String, Object> props = new HashMap<>();
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
-    props.put(ProducerConfig.ACKS_CONFIG, acks());
-    props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType());
-    props.put(ProducerConfig.RETRIES_CONFIG, retries());
-    props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory());
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+    try {
+      props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapServers());
+      props.put(ProducerConfig.ACKS_CONFIG, acks());
+      props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType());
+      props.put(ProducerConfig.RETRIES_CONFIG, retries());
+      props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory());
+      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+      props.keySet().retainAll(filter.retainKeys());
+    } catch (
+
+    IllegalArgumentException e) {
+      throw ExceptionHelper.wrapCoreException(e);
+    }
     return props;
   }
 
@@ -133,7 +142,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * ratio (more batching means better compression).
    * </p>
    * 
-   * @param t the compression type; default is {@code CompressionType#none} if not specified.
+   * @param t the compression type; default is {@link ConfigBuilder.CompressionType#none} if not specified.
    */
   public void setCompressionType(CompressionType t) {
     this.compressionType = t;
@@ -181,7 +190,7 @@ public class BasicProducerConfigBuilder implements ProducerConfigBuilder {
    * complete
    * </p>
    * 
-   * @param a the number of acks; default is {@code Acks#all} if not specified for the strongest available guarantee.
+   * @param a the number of acks; default is {@link ConfigBuilder.Acks#all} if not specified for the strongest available guarantee.
    */
   public void setAcks(Acks a) {
     this.acks = a;

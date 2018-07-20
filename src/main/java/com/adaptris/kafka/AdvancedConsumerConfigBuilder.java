@@ -34,5 +34,4 @@ public class AdvancedConsumerConfigBuilder extends AdvancedConfigBuilder impleme
   public AdvancedConsumerConfigBuilder(KeyValuePairSet cfg) {
     super(cfg);
   }
-
 }

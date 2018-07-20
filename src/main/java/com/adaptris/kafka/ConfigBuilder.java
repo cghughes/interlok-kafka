@@ -1,5 +1,6 @@
 package com.adaptris.kafka;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -80,6 +81,35 @@ public interface ConfigBuilder {
     }
   };
 
+
+
+  /**
+   * Build a configuration suitable for both a consumer and producer.
+   * 
+   * @return the configuration
+   * @throws CoreException wrapping any underlying exception.
+   */
   Map<String, Object> build() throws CoreException;
+
+  /**
+   * Build a configuration with a filter applied to the config names.
+   * 
+   * @param t the keys to keep.
+   * @return the configuration
+   * @throws CoreException wrapping any underlying exception.
+   * @see ConfigDefinition
+   */
+  Map<String, Object> build(KeyFilter t) throws CoreException;
+
+  /**
+   * For building a filtered Kafka configuration generally one or more of the keys defined in
+   * {@code org.apache.kafka.clients.consumer.ConsumerConfig#configNames()} or
+   * {@code org.apache.kafka.clients.producer.ProducerConfig#configNames()}.
+   */
+  @FunctionalInterface
+  public interface KeyFilter {
+    Collection<String> retainKeys();
+  }
+
 
 }
