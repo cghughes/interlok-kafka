@@ -35,7 +35,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  * 
  * @author lchan
- * @config polling-apache-kafka-consumer
+ * @config standard-apache-kafka-consumer
  * 
  */
 @XStreamAlias("standard-apache-kafka-consumer")

@@ -26,7 +26,7 @@ public class AdaptrisMessageDeserializer implements Deserializer<AdaptrisMessage
    */
   public static final String KAFKA_TOPIC_KEY = "adpkafkatopic";
 
-  private transient AdaptrisMessageFactory factory;
+  protected transient AdaptrisMessageFactory factory;
 
   public AdaptrisMessageDeserializer() {
   }

@@ -37,8 +37,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * {@code org.apache.kafka.clients.consumer.ConsumerConfig} and {code org.apache.kafka.clients.producer.ProducerConfig}
  * </p>
  * <p>
- * Regardless of what is configured; the {@code key.deserializer} property is fixed to be a {@code StringDeserializer}; and the
- * {@code value.deserializer} property is always an {@link AdaptrisMessageDeserializer}.
+ * If not explicitly configured; the {@code key.deserializer} property is fixed to be a {@code StringDeserializer}; and the
+ * {@code value.deserializer} property is an {@link AdaptrisMessageDeserializer}.
  * </p>
  * 
  * @config kafka-advanced-config-builder
@@ -96,10 +96,10 @@ public class AdvancedConfigBuilder implements ConfigBuilder {
   @Override
   public Map<String, Object> build(KeyFilter f) throws CoreException {
     final Map<String, Object> result = convertAndDecode(getConfig());
-    result.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
-    result.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
-    result.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
-    result.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
+    result.putIfAbsent(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+    result.putIfAbsent(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
+    result.putIfAbsent(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
+    result.putIfAbsent(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
     log.trace("Keeping Config Keys : {}", f.retainKeys());
     result.keySet().retainAll(f.retainKeys());
     return result;
