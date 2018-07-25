@@ -44,6 +44,7 @@ group   = 'com.adaptris'
 version = releaseVersion
 def versionDir = "$buildDir/version"
 
+// In this section you declare where to find the dependencies of your project
 repositories {
   jcenter()
   maven { url "$defaultNexusRepo" }
@@ -212,6 +213,10 @@ artifacts {
   archives sourcesJar
 }
 
+
+check.dependsOn jacocoTestReport
+javadoc.dependsOn umlJavadoc
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -222,6 +227,7 @@ publishing {
       artifact sourcesJar { classifier "sources" }
 
       pom.withXml {
+        asNode().appendNode("name", componentName)
         asNode().appendNode("description", "Using Apache Kafka as a messaging platform")
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.8.0+")
@@ -240,6 +246,3 @@ publishing {
     }
   }
 }
-
-javadoc.dependsOn umlJavadoc
-check.dependsOn jacocoTestReport
