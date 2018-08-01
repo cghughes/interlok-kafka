@@ -233,6 +233,7 @@ publishing {
         properties.appendNode("target", "3.8.0+")
         properties.appendNode("tags", "kafka,messaging")
         properties.appendNode("license", "false")
+        properties.appendNode("externalUrl", "http://kafka.apache.org/")
       }
     }
   }
