@@ -80,10 +80,7 @@ public class StandardKafkaConsumer extends AdaptrisMessageConsumerImp implements
       List<String> topics = Arrays.asList(Args.notBlank(getDestination().getDestination(), "topics").split("\\s*,\\s*"));
       LoggingContext.LOGGER.logPartitions(this, topics, consumer);
       consumer.subscribe(topics);
-      String threadName = "KafkaConsumer";
-      if (StringUtils.isNotBlank(getDestination().getDeliveryThreadName())) {
-    	  threadName = getDestination().getDeliveryThreadName();
-      }
+      String threadName = StringUtils.defaultIfBlank(getDestination().getDeliveryThreadName(), "KafkaConsumer");
       ManagedThreadFactory.createThread(threadName, new MessageConsumerRunnable()).start();
     } catch (RuntimeException e) {
       // ConfigException extends KafkaException which is a RTE
